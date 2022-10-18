@@ -1,0 +1,4 @@
+include README.md
+include LICENSE.pdf
+
+recursive-include aps *.py
