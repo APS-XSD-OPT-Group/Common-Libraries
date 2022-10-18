@@ -1,4 +1,6 @@
-# #########################################################################
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------- #
 # Copyright (c) 2022, UChicago Argonne, LLC. All rights reserved.         #
 #                                                                         #
 # Copyright 2022. UChicago Argonne, LLC. This software was produced       #
@@ -41,89 +43,4 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN       #
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE         #
 # POSSIBILITY OF SUCH DAMAGE.                                             #
-# #########################################################################
-
-import os
-
-try:
-    from setuptools import find_packages, setup
-except AttributeError:
-    from setuptools import find_packages, setup
-
-NAME = 'aps_common_libraries'
-
-VERSION = '0.0.1'
-ISRELEASED = False
-
-DESCRIPTION = 'APS Common Libraries'
-README_FILE = os.path.join(os.path.dirname(__file__), 'README.md')
-LONG_DESCRIPTION = open(README_FILE).read()
-AUTHOR = 'Luca Rebuffi'
-AUTHOR_EMAIL = 'lrebuffi@anl.gov'
-URL = 'https://github.com/APS-XSD-OPT-Group/Common-Libraries'
-DOWNLOAD_URL = 'https://github.com/APS-XSD-OPT-Group/Common-Libraries'
-MAINTAINER = 'XSD-OPT Group @ APS-ANL'
-MAINTAINER_EMAIL = 'lrebuffi@anl.gov'
-LICENSE = 'BSD-3'
-
-KEYWORDS = ['dictionary',
-    'glossary',
-    'synchrotron'
-    'simulation',
-]
-
-CLASSIFIERS = [
-    'Development Status :: 4 - Beta',
-    'License :: OSI Approved :: BSD License',
-    'Natural Language :: English',
-    'Environment :: Console',
-    'Environment :: Plugins',
-    'Programming Language :: Python :: 3.8',
-    'Topic :: Scientific/Engineering :: Visualization',
-    'Intended Audience :: Science/Research',
-]
-
-INSTALL_REQUIRES = (
-    'setuptools',
-    'numpy',
-    'scipy',
-)
-
-SETUP_REQUIRES = (
-    'setuptools',
-)
-
-PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
-
-PACKAGE_DATA = {
-}
-
-NAMESPACE_PACAKGES = ["aps", "aps.util"]
-
-def setup_package():
-
-    setup(
-        name=NAME,
-        version=VERSION,
-        description=DESCRIPTION,
-        long_description=LONG_DESCRIPTION,
-        author=AUTHOR,
-        author_email=AUTHOR_EMAIL,
-        maintainer=MAINTAINER,
-        maintainer_email=MAINTAINER_EMAIL,
-        url=URL,
-        download_url=DOWNLOAD_URL,
-        license=LICENSE,
-        keywords=KEYWORDS,
-        classifiers=CLASSIFIERS,
-        packages=PACKAGES,
-        package_data=PACKAGE_DATA,
-        namespace_packages=NAMESPACE_PACAKGES,
-        zip_safe=False,
-        include_package_data=True,
-        install_requires=INSTALL_REQUIRES,
-        setup_requires=SETUP_REQUIRES,
-    )
-
-if __name__ == '__main__':
-    setup_package()
+# ----------------------------------------------------------------------- #
