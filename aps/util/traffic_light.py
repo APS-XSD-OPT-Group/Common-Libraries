@@ -45,16 +45,25 @@
 # POSSIBILITY OF SUCH DAMAGE.                                             #
 # ----------------------------------------------------------------------- #
 import os, time
+import json
+from collections import OrderedDict
+
 from aps.util.singleton import Singleton, synchronized_method
 
 GREEN = "GREEN"
 RED   = "RED"
 
+class TrafficLightException(Exception):
+    def __init__(self, message=None): super(TrafficLightException, self).__init__(message)
+
+
 class TrafficLightFacade():
-    def set_red_light(self): raise NotImplementedError()
+    def set_status_running(self): raise NotImplementedError()
+    def release_status_running(self): raise NotImplementedError()
+    def is_status_running(self): raise NotImplementedError()
+    def request_red_light(self): raise NotImplementedError()
     def set_green_light(self): raise NotImplementedError()
     def is_green_light(self): raise NotImplementedError()
-    def is_red_light(self): raise NotImplementedError()
 
 class __TrafficLightFile(TrafficLightFacade):
 
@@ -63,52 +72,118 @@ class __TrafficLightFile(TrafficLightFacade):
         except: common_directory = os.curdir
         try:    self.__traffic_light_file = os.path.join(common_directory, kwargs["file_name"] + ".lock")
         except: self.__traffic_light_file = os.path.join(common_directory, application_name    + ".lock")
-        try:    self.__max_number_of_waiting_cycles = kwargs["max_number_of_waiting_cycles"]
-        except: self.__max_number_of_waiting_cycles = 10
+        try:    self.__file_access_attempts = kwargs["file_access_attempts"]
+        except: self.__file_access_attempts = 10
+        try:    self.__max_wait_cycles = kwargs["max_wait_cycles"]
+        except: self.__max_wait_cycles = 100
 
-        if not os.path.exists(self.__traffic_light_file): self.set_green_light()
+        self.__internal_dictionary = OrderedDict()
 
-    def __change_color(self, color : str):
+        if not os.path.exists(self.__traffic_light_file):
+            self.__internal_dictionary["is_status_running"]   = False
+            self.__internal_dictionary["traffic_light_color"] = GREEN
+            self.__to_json_file()
+        else:
+            self.__from_json_file()
+
+    def __to_json_file(self):
+        json_content = json.dumps(self.__internal_dictionary, indent=4, separators=(',', ': '))
         waiting_cycle = 0
-        while waiting_cycle < self.__max_number_of_waiting_cycles:
+        while waiting_cycle < self.__file_access_attempts:
             try:
                 f = open(self.__traffic_light_file, 'w')
-                f.write(color)
+                f.write(json_content)
                 f.close()
                 return
             except IOError as e:
                 if "already opened" in str(e):
                     time.sleep(0.5)
                     waiting_cycle += 1
-                else: raise e
+                else:
+                    raise e
 
-    def __get_color(self):
+    def __from_json_file(self):
         waiting_cycle = 0
-        while waiting_cycle < self.__max_number_of_waiting_cycles:
+        while waiting_cycle < self.__file_access_attempts:
             try:
                 f = open(self.__traffic_light_file, 'r')
-                color = f.readline()
+                text = f.read()
                 f.close()
+                json_content = json.loads(text)
 
-                return color
+                self.__internal_dictionary["is_status_running"]   = json_content["is_status_running"]
+                self.__internal_dictionary["traffic_light_color"] = json_content["traffic_light_color"]
+
+                return
             except IOError as e:
                 if "already opened" in str(e):
                     time.sleep(0.5)
                     waiting_cycle += 1
-                else: raise e
+                else:
+                    raise e
 
+    def __change_color(self, color):
+        self.__internal_dictionary["traffic_light_color"] = color
+        self.__to_json_file()
+
+    def __change_status_running(self, running):
+        self.__internal_dictionary["is_status_running"] = running
+        self.__to_json_file()
+
+    def __get_color(self):
+        self.__from_json_file()
+        return self.__internal_dictionary["traffic_light_color"]
+
+    def __get_is_status_running(self):
+        self.__from_json_file()
+        return self.__internal_dictionary["is_status_running"]
 
     @synchronized_method
-    def set_red_light(self): self.__change_color(RED)
+    def set_status_running(self):
+        waiting_cycle = 0
+        while waiting_cycle < self.__max_wait_cycles:
+            if self.is_green_light():
+                self.__change_status_running(True)
+                print("Status set to Running")
+                return
+            else:
+                print("Red Light: waiting 60 seconds")
+                time.sleep(60)
+                waiting_cycle += 1
+
+        raise TrafficLightException("Green light was never given during the " + str(self.__max_wait_cycles) + " 1 minute waiting cycles")
 
     @synchronized_method
-    def set_green_light(self):self.__change_color(GREEN)
+    def release_status_running(self):
+        self.__change_status_running(False)
+        print("Status set to Not Running")
 
     @synchronized_method
-    def is_red_light(self): return self.__get_color() == RED
+    def is_status_running(self):
+        return self.__get_is_status_running() == True
 
     @synchronized_method
-    def is_green_light(self): return self.__get_color() == GREEN
+    def request_red_light(self):
+        waiting_cycle = 0
+        while waiting_cycle < self.__max_wait_cycles:
+            if not self.is_status_running():
+                self.__change_color(RED)
+                print("Light set to Red")
+                return
+            else:
+                print("Status Running: waiting 60 seconds")
+                time.sleep(60)
+                waiting_cycle += 1
+
+        raise TrafficLightException("Status Running was never release during the " + str(self.__max_wait_cycles) + " 1 minute waiting cycles")
+
+    @synchronized_method
+    def set_green_light(self):
+        self.__change_color(GREEN)
+        print("Light set to Green")
+    @synchronized_method
+    def is_green_light(self):
+        return self.__get_color() == GREEN
 
 from aps.util.registry import GenericRegistry
 
