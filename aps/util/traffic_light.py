@@ -75,7 +75,7 @@ class __TrafficLightFile(TrafficLightFacade):
         try:    self.__file_access_attempts = kwargs["file_access_attempts"]
         except: self.__file_access_attempts = 10
         try:    self.__max_wait_cycles = kwargs["max_wait_cycles"]
-        except: self.__max_wait_cycles = 100
+        except: self.__max_wait_cycles = 600 # 10 minutes
 
         self.__internal_dictionary = OrderedDict()
 
@@ -147,8 +147,8 @@ class __TrafficLightFile(TrafficLightFacade):
                 print("Status set to Running")
                 return
             else:
-                print("Red Light: waiting 60 seconds")
-                time.sleep(60)
+                if waiting_cycle % 60 == 0: print("Red Light: waiting 60 seconds")
+                time.sleep(1)
                 waiting_cycle += 1
 
         raise TrafficLightException("Green light was never given during the " + str(self.__max_wait_cycles) + " 1 minute waiting cycles")
@@ -156,6 +156,7 @@ class __TrafficLightFile(TrafficLightFacade):
     @synchronized_method
     def release_status_running(self):
         self.__change_status_running(False)
+        time.sleep(1)
         print("Status set to Not Running")
 
     @synchronized_method
@@ -171,8 +172,8 @@ class __TrafficLightFile(TrafficLightFacade):
                 print("Light set to Red")
                 return
             else:
-                print("Status Running: waiting 60 seconds")
-                time.sleep(60)
+                if waiting_cycle % 60 == 0: print("Red Light: waiting 60 seconds")
+                time.sleep(1)
                 waiting_cycle += 1
 
         raise TrafficLightException("Status Running was never release during the " + str(self.__max_wait_cycles) + " 1 minute waiting cycles")
@@ -180,7 +181,9 @@ class __TrafficLightFile(TrafficLightFacade):
     @synchronized_method
     def set_green_light(self):
         self.__change_color(GREEN)
+        time.sleep(1)
         print("Light set to Green")
+
     @synchronized_method
     def is_green_light(self):
         return self.__get_color() == GREEN
