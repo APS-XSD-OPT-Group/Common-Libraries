@@ -78,6 +78,21 @@ class ImageProcessor():
                                  image_index=image_index_for_mask,
                                  verbose=verbose)
 
+    def get_image_data(self, image_index, verbose=False):
+        _get_image_data(self.__data_collection_directory,
+                        self.__file_name_prefix,
+                        self.__energy,
+                        self.__source_distance,
+                        self.__image_transfer_matrix,
+                        image_index=image_index,
+                        verbose=verbose)
+
+
+    def get_images_data(self, verbose=False):
+        for file in os.listdir(self.__data_collection_directory):
+            if pathlib.Path(file).suffix == ".tif" and self.__file_name_prefix in file:
+                self.get_image_data(image_index=int(file.split('.tif')[0][-5:]), verbose=verbose)
+
     def process_image(self, image_index, verbose=False):
         _process_image(self.__data_collection_directory,
                        self.__file_name_prefix,
@@ -175,6 +190,76 @@ class ProcessingThread(threading.Thread):
         print('Thread #' + str(self.__thread_id) + ' completed')
 
 
+def _get_image_data(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
+    dark = None
+    flat = None
+    image_path       = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
+    mask_directory   = os.path.join(data_collection_directory, "simulated_mask")
+    result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
+
+    # pattern simulation parameters
+    pattern_path          = os.path.join(SCRIPT_DIRECTORY, '/mask/RanMask5umB0.npy')
+    propagated_pattern    = os.path.join(mask_directory, 'propagated_pattern.npz')
+    propagated_patternDet = os.path.join(mask_directory, 'propagated_patternDet.npz')
+
+    crop                 = ' '.join([str(k) for k in [-1]])
+    img_transfer_matrix  = ' '.join([str(k) for k in image_transfer_matrix])
+    find_transfer_matrix = False
+    p_x                  = 0.65e-6
+    det_array            = '2560 2160'
+    pattern_size         = 4.942e-6  # 4.952e-6
+    pattern_thickness    = 1.5e-6
+    pattern_T            = 0.613
+    d_prop               = 500e-3
+    source_h             = 277e-6 / (60 / 1.5)
+    source_v             = 10e-6 / (60 / 2)
+    d_source_h           = source_distance[0]
+    d_source_v           = source_distance[1]
+    show_alignFigure     = False
+
+    # reconstruction parameter initialization
+    mode            = 'centralLine'  # area or centralLine
+    lineWidth       = 10
+    down_sampling   = 0.5
+    method          = 'WXST'
+    use_gpu         = True
+    use_wavelet     = True
+    wavelet_cut     = 1
+    pyramid_level   = 1
+    template_size   = 21
+    window_search   = 20
+    crop_boundary   = -1
+    n_cores         = 16
+    n_group         = 1
+    verbose         = 1 if verbose else 0 # NO
+    simple_analysis = 1 # YES
+
+    # alignment or not, if '', no alignment, '--alignment' with alignment
+    params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
+        '--show_alignFigure ' if show_alignFigure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
+    params = ''.join([str(item) for item in params])
+
+    command = 'python ' + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
+              ' --img {} --dark {} --flat {} --result_folder {} --pattern_path {} ' \
+              '--propagated_pattern {} --propagated_patternDet {} --crop {} --det_size {} ' \
+              '--img_transfer_matrix {} --p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
+              '--pattern_T {} --d_source_v {} --d_source_h {} --source_v {} --source_h {} --d_prop {} ' \
+              '--mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
+              '--pyramid_level {} --template_size {} --window_searching {} ' \
+              '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
+                                                                      pattern_path, propagated_pattern,
+                                                                      propagated_patternDet, crop, det_array,
+                                                                      img_transfer_matrix, p_x, energy,
+                                                                      pattern_size, pattern_thickness, pattern_T,
+                                                                      d_source_v, d_source_h,
+                                                                      source_v, source_h, d_prop, mode, lineWidth,
+                                                                      down_sampling, method,
+                                                                      wavelet_cut, pyramid_level, template_size,
+                                                                      window_search, n_cores,
+                                                                      n_group, verbose, simple_analysis, crop_boundary, params)
+    os.system(command)
+
+    print("Image " + file_name_prefix + "%05i.tif" % image_index + " processed")
 
 def _process_image(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
     dark = None

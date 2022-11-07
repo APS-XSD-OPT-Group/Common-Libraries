@@ -1296,7 +1296,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    file_img = args.img
+    file_img    = args.img
     file_folder = os.path.dirname(args.img)
   
     result_folder = args.result_folder
@@ -1416,8 +1416,7 @@ if __name__ == "__main__":
             'red')
         sys.exit()
 
-    for key, value in args.__dict__.items():
-        prColor('{}: {}'.format(key, value), 'cyan')
+    for key, value in args.__dict__.items(): prColor('{}: {}'.format(key, value), 'cyan')
     write_json(args.result_folder, 'setting', args.__dict__)
     # for the boundary, extend the cropping area by search_window+template_size
     extend_boundary = args.window_searching + args.template_size*int(1/args.down_sampling)
@@ -1434,6 +1433,10 @@ if __name__ == "__main__":
     flat = boundary_crop(flat)
     dark = boundary_crop(dark)
     I_img = (I_img - dark) / (flat - dark)
+
+
+    #TODO: INTERRUPT HERE AND SAVE CROP AND IMAGE IF SIMPLE_ANALYSIS
+
 
     # to find the pattern from the reference image
     pattern_find = pattern_search(ini_para=para_simulation)
