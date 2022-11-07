@@ -1032,16 +1032,13 @@ def get_local_curvature(displace_y, displace_x, d_prop):
     return np.gradient(displace_y, axis=0)/d_prop, np.gradient(displace_x, axis=1)/d_prop 
 
 def do_recal_d_source(I_img_raw, I_img, para_pattern, pattern_find, image_transfer_matrix, boundary_crop, para_XST, para_simulation, method='simple_speckle'):
-
     c_w = pattern_find.c_w
     para_XST_simple = para_XST.copy()
     para_XST_simple['method'] = 'simple'
     para_XST_simple['down_sampling'] = 0.5
     if para_pattern['propagated_pattern'] == 'None':
-        prColor('MESSAGE: pattern image,  ' + para_pattern['pattern_path'],
-                'green')
+        prColor('MESSAGE: pattern image,  ' + para_pattern['pattern_path'], 'green')
         I_pattern = np.load(para_pattern['pattern_path']).astype(np.float32)
-        # I_pattern = I_pattern
         I_pattern = (1 - I_pattern)
 
         # propagate the pattern to the detector
@@ -1050,19 +1047,16 @@ def do_recal_d_source(I_img_raw, I_img, para_pattern, pattern_find, image_transf
 
     if para_pattern['propagated_patternDet'] == 'None':
         # use central part of the raw image to generate the simulated detector reference image
-        center_crop = lambda img: img[int(img.shape[0] // 2 - 256):int(img.shape[0] // 2 +256),
-                                          int(img.shape[1] // 2 - 256):int(img.shape[1] // 2 + 256)]
+        center_crop = lambda img: img[int(img.shape[0] // 2 - 256):int(img.shape[0] // 2 +256), int(img.shape[1] // 2 - 256):int(img.shape[1] // 2 + 256)]
+
         I_img_central = center_crop(I_img_raw)
+
         if image_transfer_matrix is None:
             # find the proper image transfer for the reference image which matches the pattern distribution
-            image_transfer_matrix = pattern_find.img_transfer_search(
-                I_img_central, I_coh, result_folder)
-            I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh,
-                                                        image_transfer_matrix)
+            image_transfer_matrix = pattern_find.img_transfer_search(I_img_central, I_coh, result_folder)
+            I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh, image_transfer_matrix)
         else:
-            I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central,
-                                                        I_coh,
-                                                        image_transfer_matrix)
+            I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh, image_transfer_matrix)
 
     if method == 'geometric':
 
@@ -1425,25 +1419,20 @@ if __name__ == "__main__":
     
     I_img = boundary_crop(I_img_raw)
     I_img_raw = (I_img_raw - dark) / (flat - dark)
-    
-    #plt.figure()
-    #plt.imshow(I_img)
-    #plt.show()
-    #sys.exit()
+
     flat = boundary_crop(flat)
     dark = boundary_crop(dark)
     I_img = (I_img - dark) / (flat - dark)
 
-
-    #TODO: INTERRUPT HERE AND SAVE CROP AND IMAGE IF SIMPLE_ANALYSIS
-
+    with open(os.path.join(args.result_folder, "crop_region.npy"), 'wb') as f:   np.save(f, np.array(args.crop), allow_pickle=False)
+    with open(os.path.join(args.result_folder, "cropped_image.npy"), 'wb') as f: np.save(f, I_img, allow_pickle=False)
+    if args.simple_analysis == 1: sys.exit(0)
 
     # to find the pattern from the reference image
     pattern_find = pattern_search(ini_para=para_simulation)
 
     # -------------------------------- do the re-calculation of source distance -------------------------------------
     if args.d_source_recal and para_pattern['propagated_pattern'] == 'None' and para_pattern['propagated_patternDet'] == 'None':
-
         prColor('Re-calculate the source distance according to the current value', 'cyan')
         # estimation method, simple_speckle or geometric, simple_speckle means using the slope_tracking to estimate the overall source distance; geometric means using the image scalling factor to get the overall source distance
         est_method = 'simple_speckle'
@@ -1474,27 +1463,12 @@ if __name__ == "__main__":
         # propagate the pattern to the detector
         prColor('generating simulated pattern...', 'cyan')
         I_coh, I_det, I_prop = pattern_find.pattern_prop(I_pattern)
-        # np.savez(os.path.join(para_pattern['saving_path'],
-        #                       'propagated_pattern.npz'),
-        #          I_coh=I_coh,
-        #          I_det=I_det,
-        #          I_prop=I_prop)
-        # plt.figure()
-        # plt.imshow(I_coh)
-        # plt.colorbar()
-        # plt.show()
-        # sys.exit()
-        
-        np.savez(os.path.join(para_pattern['saving_path'],
-                              'propagated_pattern.npz'),
-                 I_coh=I_coh)
-    
+
+        np.savez(os.path.join(para_pattern['saving_path'], 'propagated_pattern.npz'), I_coh=I_coh)
     else:
         if para_pattern['propagated_patternDet'] == 'None':
             # load the pattern from the saved file
-            prColor(
-                'MESSAGE: load propagated pattern,  ' +
-                para_pattern['propagated_pattern'], 'green')
+            prColor('MESSAGE: load propagated pattern,  ' + para_pattern['propagated_pattern'], 'green')
             data_content = np.load(para_pattern['propagated_pattern'])
             I_coh = data_content['I_coh']
             # I_det = data_content['I_det']
@@ -1505,19 +1479,18 @@ if __name__ == "__main__":
         center_crop = lambda img: img[int(img.shape[0] // 2 - 256):int(img.shape[0] // 2 +256),
                                           int(img.shape[1] // 2 - 256):int(img.shape[1] // 2 + 256)]
         I_img_central = center_crop(I_img_raw)
+
         if image_transfer_matrix is None:
             # find the proper image transfer for the reference image which matches the pattern distribution
-            image_transfer_matrix = pattern_find.img_transfer_search(
-                I_img_central, I_coh, result_folder)
-            I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh,
-                                                        image_transfer_matrix)
+            image_transfer_matrix = pattern_find.img_transfer_search(I_img_central, I_coh, result_folder)
+            I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh, image_transfer_matrix)
+
+            with open(os.path.join(para_pattern['saving_path'], "image_transfer_matrix.npy"), 'wb') as f: np.save(f, np.array(image_transfer_matrix), allow_pickle=False)
         else:
-            I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central,
-                                                        I_coh,
-                                                        image_transfer_matrix)
+            I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh, image_transfer_matrix)
+
         prColor('saving the simulated pattern (det plane)...', 'cyan')
-        np.savez(os.path.join(para_pattern['saving_path'],
-                              'propagated_patternDet.npz'),
+        np.savez(os.path.join(para_pattern['saving_path'], 'propagated_patternDet.npz'),
                  I_simu_whole=I_simu_whole,
                  displace_x_offset=displace_x_offset,
                  displace_y_offset=displace_y_offset)

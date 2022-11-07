@@ -71,27 +71,22 @@ class ImageProcessor():
 
 
     def generate_simulated_mask(self, image_index_for_mask=1, verbose=False):
-        _generate_simulated_mask(self.__data_collection_directory,
-                                 self.__file_name_prefix,
-                                 self.__energy,
-                                 self.__source_distance,
-                                 image_index=image_index_for_mask,
-                                 verbose=verbose)
+        self.__image_transfer_matrix = _generate_simulated_mask(self.__data_collection_directory,
+                                                                self.__file_name_prefix,
+                                                                self.__energy,
+                                                                self.__source_distance,
+                                                                image_index=image_index_for_mask,
+                                                                verbose=verbose)
+        return self.__image_transfer_matrix
 
     def get_image_data(self, image_index, verbose=False):
-        _get_image_data(self.__data_collection_directory,
-                        self.__file_name_prefix,
-                        self.__energy,
-                        self.__source_distance,
-                        self.__image_transfer_matrix,
-                        image_index=image_index,
-                        verbose=verbose)
-
-
-    def get_images_data(self, verbose=False):
-        for file in os.listdir(self.__data_collection_directory):
-            if pathlib.Path(file).suffix == ".tif" and self.__file_name_prefix in file:
-                self.get_image_data(image_index=int(file.split('.tif')[0][-5:]), verbose=verbose)
+        return _get_image_data(self.__data_collection_directory,
+                               self.__file_name_prefix,
+                               self.__energy,
+                               self.__source_distance,
+                               self.__image_transfer_matrix,
+                               image_index=image_index,
+                               verbose=verbose)
 
     def process_image(self, image_index, verbose=False):
         _process_image(self.__data_collection_directory,
@@ -259,7 +254,11 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
                                                                       n_group, verbose, simple_analysis, crop_boundary, params)
     os.system(command)
 
-    print("Image " + file_name_prefix + "%05i.tif" % image_index + " processed")
+    with open(os.path.join(result_directory, "crop_region.npy"), 'rb') as f:   crop_region   = numpy.load(f, allow_pickle=False)
+    with open(os.path.join(result_directory, "cropped_image.npy"), 'rb') as f: cropped_image = numpy.load(f, allow_pickle=False)
+
+    return crop_region.tolist(), cropped_image
+
 
 def _process_image(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
     dark = None
@@ -402,4 +401,6 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy
 
     print("Simulated mask generated in " + saving_path)
 
-    return [0, 1, 0]
+    with open(os.path.join(saving_path, "image_transfer_matrix.npy"), 'rb') as f: image_transfer_matrix = numpy.load(f, allow_pickle=False)
+
+    return image_transfer_matrix.tolist()
