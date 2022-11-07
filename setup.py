@@ -98,7 +98,7 @@ PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
 PACKAGE_DATA = {
 }
 
-NAMESPACE_PACAKGES = ["aps", "aps.util"]
+NAMESPACE_PACAKGES = ["aps", "aps.common"]
 
 def setup_package():
 
