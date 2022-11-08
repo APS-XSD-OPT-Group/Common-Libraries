@@ -1426,6 +1426,8 @@ if __name__ == "__main__":
 
     with open(os.path.join(args.result_folder, "crop_region.npy"), 'wb') as f:   np.save(f, np.array(args.crop), allow_pickle=False)
     with open(os.path.join(args.result_folder, "cropped_image.npy"), 'wb') as f: np.save(f, I_img, allow_pickle=False)
+    with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:     np.save(f, I_img_raw, allow_pickle=False)
+
     if args.simple_analysis == 1: sys.exit(0)
 
     # to find the pattern from the reference image

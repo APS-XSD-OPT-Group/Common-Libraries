@@ -55,6 +55,9 @@ import numpy
 from aps.common.measurment.beamline.image_collector import FILE_NAME_PREFIX
 from aps.common.measurment.beamline.wf import SCRIPT_DIRECTORY
 
+PIXEL_SIZE           = 0.65e-6
+IMAGE_SIZE_PIXEL_HxV = [2160, 2560]
+
 class ImageProcessor():
     def __init__(self,
                  data_collection_directory,
@@ -200,8 +203,8 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
     crop                 = ' '.join([str(k) for k in [-1]])
     img_transfer_matrix  = ' '.join([str(k) for k in image_transfer_matrix])
     find_transfer_matrix = False
-    p_x                  = 0.65e-6
-    det_array            = '2560 2160'
+    p_x                  = PIXEL_SIZE
+    det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
     pattern_size         = 4.942e-6  # 4.952e-6
     pattern_thickness    = 1.5e-6
     pattern_T            = 0.613
@@ -256,8 +259,9 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
 
     with open(os.path.join(result_directory, "crop_region.npy"), 'rb') as f:   crop_region   = numpy.load(f, allow_pickle=False)
     with open(os.path.join(result_directory, "cropped_image.npy"), 'rb') as f: cropped_image = numpy.load(f, allow_pickle=False)
+    with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f:     raw_image     = numpy.load(f, allow_pickle=False)
 
-    return crop_region.tolist(), cropped_image
+    return raw_image, crop_region.tolist(), cropped_image
 
 
 def _process_image(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
@@ -275,8 +279,8 @@ def _process_image(data_collection_directory, file_name_prefix, energy, source_d
     crop                 = ' '.join([str(k) for k in [-1]])
     img_transfer_matrix  = ' '.join([str(k) for k in image_transfer_matrix])
     find_transfer_matrix = False
-    p_x                  = 0.65e-6
-    det_array            = '2560 2160'
+    p_x                  = PIXEL_SIZE
+    det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
     pattern_size         = 4.942e-6  # 4.952e-6
     pattern_thickness    = 1.5e-6
     pattern_T            = 0.613
@@ -346,8 +350,8 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy
 
     crop                 = ' '.join([str(k) for k in [-1]])
     find_transfer_matrix = True
-    p_x                  = 0.65e-6
-    det_array            = '2560 2160'
+    p_x                  = PIXEL_SIZE
+    det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
     pattern_size         = 4.942e-6  # 4.952e-6
     pattern_thickness    = 1.5e-6
     pattern_T            = 0.613

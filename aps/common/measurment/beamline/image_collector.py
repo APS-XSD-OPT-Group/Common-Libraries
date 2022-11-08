@@ -128,8 +128,8 @@ class ImageCollector():
     def restore_status(self):
         self.__from_json_file()
 
-    def collect_single_shot_image(self):
-        self.__initialize_current_image()
+    def collect_single_shot_image(self, index=-1):
+        self.__initialize_current_image(index)
 
         self.__detector_stop()    # 1 waiting time
         self.__detector_acquire() # 2 waiting time + exposure time
@@ -158,9 +158,10 @@ class ImageCollector():
     def __detector_done(self):
         return self.__PV_dict["andor_cam_acquire"].get() in (0, "Done")
 
-    def __initialize_current_image(self):
+    def __initialize_current_image(self, index):
         self.__PV_dict["andor_tiff_autosave"].put("Yes")
         self.__PV_dict["andor_tiff_filename"].put('sample_' + str(int(self.__exposure_time * 1000)) + 'ms')
+        if index > 0: self.__PV_dict["andor_tiff_filenumber"].put(index)
 
     def __detector_delay(self):
         if not self.__has_delay:
