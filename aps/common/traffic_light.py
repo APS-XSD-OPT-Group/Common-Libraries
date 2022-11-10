@@ -201,6 +201,7 @@ class __TrafficLightRegistry(GenericRegistry):
     @synchronized_method
     def reset(self, application_name=None): super().reset(application_name)
 
+    @synchronized_method
     def get_traffic_light_instance(self, application_name=None): return super().get_instance(application_name)
 
 # -----------------------------------------------------
