@@ -183,9 +183,12 @@ class __TrafficLightFile(TrafficLightFacade):
 
     @synchronized_method
     def set_green_light(self):
-        self.__change_color(GREEN)
-        time.sleep(1)
-        print("Light set to Green")
+        if not self.is_green_light():
+            self.__change_color(GREEN)
+            time.sleep(1)
+            print("Light set to Green")
+        else:
+            print("Light is already Green")
 
     @synchronized_method
     def is_green_light(self):
