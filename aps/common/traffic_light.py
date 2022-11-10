@@ -155,9 +155,12 @@ class __TrafficLightFile(TrafficLightFacade):
 
     @synchronized_method
     def release_status_running(self):
-        self.__change_status_running(False)
-        time.sleep(1)
-        print("Status set to Not Running")
+        if self.is_status_running():
+            self.__change_status_running(False)
+            time.sleep(1)
+            print("Status set to Not Running")
+        else:
+            print("Status is already Not Running")
 
     @synchronized_method
     def is_status_running(self):
