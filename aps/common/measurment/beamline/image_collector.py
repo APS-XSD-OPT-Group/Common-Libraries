@@ -111,6 +111,7 @@ class ImageCollector():
             dictionary["andor_tiff_filenumber"]   = self.__PV_dict["andor_tiff_filenumber"].get()
             dictionary["andor_cam_exposure_time"] = self.__PV_dict["andor_cam_exposure_time"].get()
 
+            print("JSON!", dictionary)
             json_content = json.dumps(dictionary, indent=4, separators=(',', ': '))
             f = open(IMAGE_COLLECTOR_STATUS_FILE, 'w')
             f.write(json_content)
