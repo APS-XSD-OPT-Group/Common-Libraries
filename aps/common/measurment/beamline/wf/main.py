@@ -1373,53 +1373,54 @@ if __name__ == "__main__":
     else:
         flat = load_image(args.flat)
 
-    if len(args.crop) == 4:
-        # boundary crop, use the corner index [y0, y1, x0, x1]
-        # boundary_crop = lambda img: img[int(args.crop[0]):int(args.crop[1]),
-        #                                 int(args.crop[2]):int(args.crop[3])]
-        pass
+    if not args.simple_analysis == 2:
+        if len(args.crop) == 4:
+            # boundary crop, use the corner index [y0, y1, x0, x1]
+            # boundary_crop = lambda img: img[int(args.crop[0]):int(args.crop[1]),
+            #                                 int(args.crop[2]):int(args.crop[3])]
+            pass
+        elif len(args.crop) == 1:
+            if args.crop[0] == 0:
+                # use gui crop
+                print("before crop------------------------------------------------")
+                _, corner = crop_gui(I_img_raw)
+                print("after crop------------------------------------------------")
 
-    elif len(args.crop) == 1:
-        if args.crop[0] == 0:
-            # use gui crop
-            print("before crop------------------------------------------------")
-            _, corner = crop_gui(I_img_raw)
-            print("after crop------------------------------------------------")
-			
-            args.crop = [
-                int(corner[0][0]),
-                int(corner[1][0]),
-                int(corner[0][1]),
-                int(corner[1][1])
-            ]
-        elif args.crop[0] == -1:
-            # use auto-crop according to the intensity boundary. rectangular shapess
-            args.crop = auto_crop(flat, shrink=0.85)
-        else:
-            # central crop
-            corner = [int(I_img_raw.shape[0] // 2 - args.crop[0] // 2),
-                    int(I_img_raw.shape[0] // 2 + args.crop[0] // 2),
-                    int(I_img_raw.shape[1] // 2 - args.crop[0] // 2),
-                    int(I_img_raw.shape[1] // 2 + args.crop[0] // 2),
+                args.crop = [
+                    int(corner[0][0]),
+                    int(corner[1][0]),
+                    int(corner[0][1]),
+                    int(corner[1][1])
                 ]
-            args.crop = corner
-            
-
-    else:
-        # error input
-        prColor(
-            'error: wrong crop option. 0 for gui crop; [256] for central crop; [y0, y1, x0, x1] for bournday crop',
-            'red')
-        sys.exit()
+            elif args.crop[0] == -1:
+                # use auto-crop according to the intensity boundary. rectangular shapess
+                args.crop = auto_crop(flat, shrink=0.85)
+            else:
+                # central crop
+                corner = [int(I_img_raw.shape[0] // 2 - args.crop[0] // 2),
+                        int(I_img_raw.shape[0] // 2 + args.crop[0] // 2),
+                        int(I_img_raw.shape[1] // 2 - args.crop[0] // 2),
+                        int(I_img_raw.shape[1] // 2 + args.crop[0] // 2),
+                    ]
+                args.crop = corner
+        else:
+            # error input
+            prColor(
+                'error: wrong crop option. 0 for gui crop; [256] for central crop; [y0, y1, x0, x1] for bournday crop',
+                'red')
+            sys.exit()
 
     for key, value in args.__dict__.items(): prColor('{}: {}'.format(key, value), 'cyan')
     write_json(args.result_folder, 'setting', args.__dict__)
+
+    with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:     np.save(f, I_img_raw, allow_pickle=False)
+
+    if args.simple_analysis == 2: sys.exit(0)
+
     # for the boundary, extend the cropping area by search_window+template_size
     extend_boundary = args.window_searching + args.template_size*int(1/args.down_sampling)
     boundary_crop = lambda img: img[int(args.crop[0]-extend_boundary):int(args.crop[1]+extend_boundary),
                                         int(args.crop[2]-extend_boundary):int(args.crop[3]+extend_boundary)]
-
-    with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:     np.save(f, I_img_raw, allow_pickle=False)
 
     I_img = boundary_crop(I_img_raw)
     I_img_raw = (I_img_raw - dark) / (flat - dark)

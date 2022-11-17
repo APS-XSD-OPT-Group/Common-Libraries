@@ -82,13 +82,14 @@ class ImageProcessor():
                                                                 verbose=verbose)
         return self.__image_transfer_matrix
 
-    def get_image_data(self, image_index, verbose=False):
+    def get_image_data(self, image_index, raw_only=True, verbose=False):
         return _get_image_data(self.__data_collection_directory,
                                self.__file_name_prefix,
                                self.__energy,
                                self.__source_distance,
                                self.__image_transfer_matrix,
                                image_index=image_index,
+                               raw_only=raw_only,
                                verbose=verbose)
 
     def process_image(self, image_index, verbose=False):
@@ -188,7 +189,7 @@ class ProcessingThread(threading.Thread):
         print('Thread #' + str(self.__thread_id) + ' completed')
 
 
-def _get_image_data(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
+def _get_image_data(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, raw_only, verbose):
     dark = None
     flat = None
     image_path       = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
@@ -230,7 +231,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
     n_cores         = 16
     n_group         = 1
     verbose         = 1 if verbose else 0 # NO
-    simple_analysis = 1 # YES
+    simple_analysis = 2 if raw_only else 1 # YES
 
     # alignment or not, if '', no alignment, '--alignment' with alignment
     params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
@@ -257,11 +258,15 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
                                                                       n_group, verbose, simple_analysis, crop_boundary, params)
     os.system(command)
 
-    with open(os.path.join(result_directory, "crop_region.npy"), 'rb') as f:   crop_region   = numpy.load(f, allow_pickle=False)
-    with open(os.path.join(result_directory, "cropped_image.npy"), 'rb') as f: cropped_image = numpy.load(f, allow_pickle=False)
-    with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f:     raw_image     = numpy.load(f, allow_pickle=False)
+    with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f: raw_image = numpy.load(f, allow_pickle=False).T
 
-    return raw_image.T, crop_region.tolist(), cropped_image
+    if not raw_only:
+        with open(os.path.join(result_directory, "crop_region.npy"), 'rb') as f:   crop_region   = numpy.load(f, allow_pickle=False)
+        with open(os.path.join(result_directory, "cropped_image.npy"), 'rb') as f: cropped_image = numpy.load(f, allow_pickle=False)
+
+        return raw_image, crop_region.tolist(), cropped_image
+    else:
+        return raw_image, None, None
 
 
 def _process_image(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
