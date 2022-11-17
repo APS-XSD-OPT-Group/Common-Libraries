@@ -73,3 +73,10 @@ def get_average(histogram, bins):
     frequency = histogram/numpy.sum(histogram)
     return numpy.sum(frequency*bins)
 
+def get_peak_location(histogram, bins):
+    return bins[numpy.argmax(histogram)]
+
+def get_peak_location_2D(x_array, y_array, z_array):
+    indexes = numpy.unravel_index(numpy.argmax(z_array, axis=None), z_array.shape)
+
+    return x_array[indexes[0]], y_array[indexes[1]]
