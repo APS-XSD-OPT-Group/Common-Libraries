@@ -46,7 +46,7 @@
 # ----------------------------------------------------------------------- #
 import time
 from epics import PV
-import json
+import pickle
 from collections import OrderedDict
 
 from aps.common.initializer import IniMode, register_ini_instance, get_registered_ini_instance
@@ -67,7 +67,7 @@ ini_file.set_value_at_ini(section="Execution",   key="Wait-Time",     value=WAIT
 ini_file.set_value_at_ini(section="Execution",   key="Exposure-Time", value=EXPOSURE_TIME)
 ini_file.push()
 
-IMAGE_COLLECTOR_STATUS_FILE = "image_collector_status.json"
+IMAGE_COLLECTOR_STATUS_FILE = "image_collector_status.pkl"
 
 class ImageCollector():
 
@@ -103,7 +103,7 @@ class ImageCollector():
         else:
             print("ImageCollector initialized in Mocking Mode")
 
-    def __to_json_file(self):
+    def __to_pickle_file(self):
         if not self.__mocking_mode:
             dictionary = OrderedDict()
             dictionary["andor_cam_image_mode"]    = self.__PV_dict["andor_cam_image_mode"].get()
@@ -111,29 +111,22 @@ class ImageCollector():
             dictionary["andor_tiff_filenumber"]   = self.__PV_dict["andor_tiff_filenumber"].get()
             dictionary["andor_cam_exposure_time"] = self.__PV_dict["andor_cam_exposure_time"].get()
 
-            print("JSON!", dictionary)
-            json_content = json.dumps(dictionary, indent=4, separators=(',', ': '))
-            f = open(IMAGE_COLLECTOR_STATUS_FILE, 'w')
-            f.write(json_content)
-            f.close()
+            pickle.dump(dictionary, IMAGE_COLLECTOR_STATUS_FILE)
 
-    def __from_json_file(self):
+    def __from_pickle_file(self):
         if not self.__mocking_mode:
-            f = open(IMAGE_COLLECTOR_STATUS_FILE, 'r')
-            text = f.read()
-            f.close()
-            json_content = json.loads(text)
+            dictionary = pickle.load(IMAGE_COLLECTOR_STATUS_FILE)
 
-            self.__PV_dict["andor_cam_image_mode"].put(   json_content["andor_cam_image_mode"])
-            self.__PV_dict["andor_tiff_filepath"].put(    json_content["andor_tiff_filepath"])
-            self.__PV_dict["andor_tiff_filenumber"].put(  json_content["andor_tiff_filenumber"])
-            self.__PV_dict["andor_cam_exposure_time"].put(json_content["andor_cam_exposure_time"])
+            self.__PV_dict["andor_cam_image_mode"].put(   dictionary["andor_cam_image_mode"])
+            self.__PV_dict["andor_tiff_filepath"].put(    dictionary["andor_tiff_filepath"])
+            self.__PV_dict["andor_tiff_filenumber"].put(  dictionary["andor_tiff_filenumber"])
+            self.__PV_dict["andor_cam_exposure_time"].put(dictionary["andor_cam_exposure_time"])
 
     def save_status(self):
-        self.__to_json_file()
+        self.__to_pickle_file()
 
     def restore_status(self):
-        self.__from_json_file()
+        self.__from_pickle_file()
 
     def collect_single_shot_image(self, index=-1):
         if not self.__mocking_mode:
