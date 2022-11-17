@@ -1418,7 +1418,9 @@ if __name__ == "__main__":
     extend_boundary = args.window_searching + args.template_size*int(1/args.down_sampling)
     boundary_crop = lambda img: img[int(args.crop[0]-extend_boundary):int(args.crop[1]+extend_boundary),
                                         int(args.crop[2]-extend_boundary):int(args.crop[3]+extend_boundary)]
-    
+
+    with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:     np.save(f, I_img_raw, allow_pickle=False)
+
     I_img = boundary_crop(I_img_raw)
     I_img_raw = (I_img_raw - dark) / (flat - dark)
 
@@ -1428,7 +1430,6 @@ if __name__ == "__main__":
 
     with open(os.path.join(args.result_folder, "crop_region.npy"), 'wb') as f:   np.save(f, np.array(args.crop), allow_pickle=False)
     with open(os.path.join(args.result_folder, "cropped_image.npy"), 'wb') as f: np.save(f, I_img, allow_pickle=False)
-    with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:     np.save(f, I_img_raw, allow_pickle=False)
 
     if args.simple_analysis == 1: sys.exit(0)
 

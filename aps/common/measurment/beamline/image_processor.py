@@ -261,7 +261,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
     with open(os.path.join(result_directory, "cropped_image.npy"), 'rb') as f: cropped_image = numpy.load(f, allow_pickle=False)
     with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f:     raw_image     = numpy.load(f, allow_pickle=False)
 
-    return raw_image, crop_region.tolist(), cropped_image
+    return raw_image.T, crop_region.tolist(), cropped_image
 
 
 def _process_image(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
