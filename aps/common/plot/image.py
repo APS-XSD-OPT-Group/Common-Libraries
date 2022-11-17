@@ -76,7 +76,10 @@ def get_average(histogram, bins):
 def get_peak_location(histogram, bins):
     return bins[numpy.argmax(histogram)]
 
-def get_peak_location_2D(x_array, y_array, z_array):
+from scipy.ndimage import median_filter
+
+def get_peak_location_2D(x_array, y_array, z_array, smooth=False):
+    if smooth: z_array = median_filter(z_array, size=3)
     indexes = numpy.unravel_index(numpy.argmax(z_array, axis=None), z_array.shape)
 
-    return x_array[indexes[0]], y_array[indexes[1]]
+    return x_array[indexes[0]], numpy.flip(y_array)[indexes[1]]
