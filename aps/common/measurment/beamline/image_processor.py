@@ -232,6 +232,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
     n_group         = 1
     verbose         = 1 if verbose else 0 # NO
     simple_analysis = 2 if raw_only else 1 # YES
+    sigma_denoise   = 1.0
 
     # alignment or not, if '', no alignment, '--alignment' with alignment
     params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
@@ -245,7 +246,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
               '--pattern_T {} --d_source_v {} --d_source_h {} --source_v {} --source_h {} --d_prop {} ' \
               '--mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
               '--pyramid_level {} --template_size {} --window_searching {} ' \
-              '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
+              '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --sigma_denoise {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
                                                                       pattern_path, propagated_pattern,
                                                                       propagated_patternDet, crop, det_array,
                                                                       img_transfer_matrix, p_x, energy,
@@ -255,7 +256,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
                                                                       down_sampling, method,
                                                                       wavelet_cut, pyramid_level, template_size,
                                                                       window_search, n_cores,
-                                                                      n_group, verbose, simple_analysis, crop_boundary, params)
+                                                                      n_group, verbose, simple_analysis, sigma_denoise, crop_boundary, params)
     os.system(command)
 
     with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f:          raw_image = numpy.load(f, allow_pickle=False).T

@@ -1289,6 +1289,10 @@ if __name__ == "__main__":
                         default=0,
                         type=int,
                         help='simple analysis yes(1)/no(0)')
+    parser.add_argument('--sigma_denoise',
+                        default=1.0,
+                        type=float,
+                        help='Sigma for Gaussian Filter (denoise)')
 
     args = parser.parse_args()
 
@@ -1366,10 +1370,6 @@ if __name__ == "__main__":
     if args.flat == 'None':
         # flat = 1
         flat = snd.uniform_filter(I_img_raw, size=5*(args.pattern_size/args.p_x))
-        # plt.figure()
-        # plt.imshow(flat)
-        # plt.colorbar()
-        # plt.show()
     else:
         flat = load_image(args.flat)
 
@@ -1413,11 +1413,15 @@ if __name__ == "__main__":
     for key, value in args.__dict__.items(): prColor('{}: {}'.format(key, value), 'cyan')
     write_json(args.result_folder, 'setting', args.__dict__)
 
-    with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:          np.save(f, I_img_raw, allow_pickle=False)
-    I_img_raw = (I_img_raw - dark) / (flat - dark)
-    with open(os.path.join(args.result_folder, "raw_image_denoised.npy"), 'wb') as f: np.save(f, I_img_raw, allow_pickle=False)
+    if args.simple_analysis > 0:
+        I_img_raw_denoised = I_img_raw - flat[0, 0]
+        I_img_raw_denoised[np.where(I_img_raw_denoised < 0)] = 0.0
+        I_img_raw_denoised = snd.gaussian_filter(I_img_raw_denoised, sigma=args.sigma_denoise)
 
-    if args.simple_analysis == 2: sys.exit(0)
+        with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:          np.save(f, I_img_raw, allow_pickle=False)
+        with open(os.path.join(args.result_folder, "raw_image_denoised.npy"), 'wb') as f: np.save(f, I_img_raw_denoised, allow_pickle=False)
+
+        if args.simple_analysis == 2: sys.exit(0)
 
     # for the boundary, extend the cropping area by search_window+template_size
     extend_boundary = args.window_searching + args.template_size*int(1/args.down_sampling)
@@ -1425,15 +1429,14 @@ if __name__ == "__main__":
                                         int(args.crop[2]-extend_boundary):int(args.crop[3]+extend_boundary)]
 
     I_img = boundary_crop(I_img_raw)
-
-    flat = boundary_crop(flat)
-    dark = boundary_crop(dark)
+    flat  = boundary_crop(flat)
+    dark  = boundary_crop(dark)
     I_img = (I_img - dark) / (flat - dark)
 
-    with open(os.path.join(args.result_folder, "crop_region.npy"), 'wb') as f:   np.save(f, np.array(args.crop), allow_pickle=False)
-    with open(os.path.join(args.result_folder, "cropped_image.npy"), 'wb') as f: np.save(f, I_img, allow_pickle=False)
-
-    if args.simple_analysis == 1: sys.exit(0)
+    if args.simple_analysis == 1:
+        with open(os.path.join(args.result_folder, "crop_region.npy"), 'wb') as f:   np.save(f, np.array(args.crop), allow_pickle=False)
+        with open(os.path.join(args.result_folder, "cropped_image.npy"), 'wb') as f: np.save(f, I_img, allow_pickle=False)
+        sys.exit(0)
 
     # to find the pattern from the reference image
     pattern_find = pattern_search(ini_para=para_simulation)
