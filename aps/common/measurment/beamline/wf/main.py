@@ -1413,7 +1413,9 @@ if __name__ == "__main__":
     for key, value in args.__dict__.items(): prColor('{}: {}'.format(key, value), 'cyan')
     write_json(args.result_folder, 'setting', args.__dict__)
 
-    with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:     np.save(f, I_img_raw, allow_pickle=False)
+    with open(os.path.join(args.result_folder, "raw_image.npy"), 'wb') as f:          np.save(f, I_img_raw, allow_pickle=False)
+    I_img_raw = (I_img_raw - dark) / (flat - dark)
+    with open(os.path.join(args.result_folder, "raw_image_denoised.npy"), 'wb') as f: np.save(f, I_img_raw, allow_pickle=False)
 
     if args.simple_analysis == 2: sys.exit(0)
 
@@ -1423,7 +1425,6 @@ if __name__ == "__main__":
                                         int(args.crop[2]-extend_boundary):int(args.crop[3]+extend_boundary)]
 
     I_img = boundary_crop(I_img_raw)
-    I_img_raw = (I_img_raw - dark) / (flat - dark)
 
     flat = boundary_crop(flat)
     dark = boundary_crop(dark)

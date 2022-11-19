@@ -258,15 +258,16 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
                                                                       n_group, verbose, simple_analysis, crop_boundary, params)
     os.system(command)
 
-    with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f: raw_image = numpy.load(f, allow_pickle=False).T
+    with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f:          raw_image = numpy.load(f, allow_pickle=False).T
+    with open(os.path.join(result_directory, "raw_image_denoised.npy"), 'rb') as f: raw_image_denoised = numpy.load(f, allow_pickle=False).T
 
     if not raw_only:
         with open(os.path.join(result_directory, "crop_region.npy"), 'rb') as f:   crop_region   = numpy.load(f, allow_pickle=False)
         with open(os.path.join(result_directory, "cropped_image.npy"), 'rb') as f: cropped_image = numpy.load(f, allow_pickle=False)
 
-        return raw_image, crop_region.tolist(), cropped_image
+        return raw_image, raw_image_denoised, crop_region.tolist(), cropped_image
     else:
-        return raw_image, None, None
+        return raw_image, raw_image_denoised, None, None
 
 
 def _process_image(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
