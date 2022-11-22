@@ -1429,6 +1429,9 @@ if __name__ == "__main__":
                                         int(args.crop[2]-extend_boundary):int(args.crop[3]+extend_boundary)]
 
     I_img = boundary_crop(I_img_raw)
+
+    I_img_raw = (I_img_raw - dark) / (flat - dark)
+
     flat  = boundary_crop(flat)
     dark  = boundary_crop(dark)
     I_img = (I_img - dark) / (flat - dark)
