@@ -515,6 +515,7 @@ def auto_crop(img, shrink=0.9, count=None):
         
     else:
         img_seg = np.ones(img.shape) * (img > count)
+
     cen = snd.measurements.center_of_mass(img_seg)
     cen_x, cen_y = int(cen[0]), int(cen[1])
 
