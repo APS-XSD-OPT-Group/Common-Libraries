@@ -147,8 +147,8 @@ class __TrafficLightFile(TrafficLightFacade):
                 print("Status set to Running")
                 return
             else:
-                if waiting_cycle % 60 == 0: print("Red Light: waiting 60 seconds")
-                time.sleep(1)
+                if waiting_cycle % 600 == 0: print("Red Light: waiting 60 seconds")
+                time.sleep(0.1)
                 waiting_cycle += 1
 
         raise TrafficLightException("Green light was never given during the " + str(self.__max_wait_cycles) + " 1 minute waiting cycles")
@@ -175,8 +175,8 @@ class __TrafficLightFile(TrafficLightFacade):
                 print("Light set to Red")
                 return
             else:
-                if waiting_cycle % 60 == 0: print("Red Light: waiting 60 seconds")
-                time.sleep(1)
+                if waiting_cycle % 600 == 0: print("Red Light: waiting 60 seconds")
+                time.sleep(0.1)
                 waiting_cycle += 1
 
         raise TrafficLightException("Status Running was never release during the " + str(self.__max_wait_cycles) + " 1 minute waiting cycles")
