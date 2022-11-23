@@ -122,19 +122,19 @@ class __LocalIniFile(IniFacade):
 
     def get_string_from_ini(self, section, key, default="None"):
         value = self.__get_from_ini(section, key, default)
-        return str(default) if value is None else value.strip()
+        return (str(default) if not default is None else None) if value is None else value.strip()
 
     def get_int_from_ini(self, section, key, default=0):
         value = self.__get_from_ini(section, key, default)
-        return int(default) if value is None else int(value.strip())
+        return (int(default) if not default is None else None) if value is None else int(value.strip())
 
     def get_float_from_ini(self, section, key, default=0.0):
         value = self.__get_from_ini(section, key, default)
-        return float(default) if value is None else float(value.strip())
+        return (float(default)  if not default is None else None) if value is None else float(value.strip())
 
     def get_boolean_from_ini(self, section, key, default=False):
         value = self.__get_from_ini(section, key, default)
-        return default if value is None else (True if value.strip().lower() == "true" else False)
+        return (default if not default is None else False) if value is None else (True if value.strip().lower() == "true" else False)
 
     def get_list_from_ini(self, section, key, default=[], type=int):
         value = self.__get_from_ini(section, key, default=None)
