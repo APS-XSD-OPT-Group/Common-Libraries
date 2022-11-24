@@ -111,11 +111,15 @@ class ImageCollector():
             dictionary["andor_tiff_filenumber"]   = self.__PV_dict["andor_tiff_filenumber"].get()
             dictionary["andor_cam_exposure_time"] = self.__PV_dict["andor_cam_exposure_time"].get()
 
-            pickle.dump(dictionary, IMAGE_COLLECTOR_STATUS_FILE)
+            file = open(IMAGE_COLLECTOR_STATUS_FILE, 'wb')
+            pickle.dump(dictionary, file)
+            file.close()
 
     def __from_pickle_file(self):
         if not self.__mocking_mode:
-            dictionary = pickle.load(IMAGE_COLLECTOR_STATUS_FILE)
+            file = open(IMAGE_COLLECTOR_STATUS_FILE, 'rb')
+            dictionary = pickle.load(file)
+            file.close()
 
             self.__PV_dict["andor_cam_image_mode"].put(   dictionary["andor_cam_image_mode"])
             self.__PV_dict["andor_tiff_filepath"].put(    dictionary["andor_tiff_filepath"])
@@ -164,6 +168,7 @@ class ImageCollector():
 
     def __initialize_current_image(self, index):
         self.__PV_dict["andor_tiff_autosave"].put("Yes")
+        self.__PV_dict["andor_tiff_filepath"].put(self.__measurement_directory)
         self.__PV_dict["andor_tiff_filename"].put('sample_' + str(int(self.__exposure_time * 1000)) + 'ms')
         if index > 0: self.__PV_dict["andor_tiff_filenumber"].put(index)
 
