@@ -75,7 +75,7 @@ class __TrafficLightFile(TrafficLightFacade):
         try:    self.__file_access_attempts = kwargs["file_access_attempts"]
         except: self.__file_access_attempts = 10
         try:    self.__max_wait_cycles = kwargs["max_wait_cycles"]
-        except: self.__max_wait_cycles = 600 # 10 minutes
+        except: self.__max_wait_cycles = 120*600 # 1120 minutes
 
         self.__internal_dictionary = OrderedDict()
 
@@ -179,7 +179,7 @@ class __TrafficLightFile(TrafficLightFacade):
                 time.sleep(0.1)
                 waiting_cycle += 1
 
-        raise TrafficLightException("Status Running was never release during the " + str(self.__max_wait_cycles) + " 1 minute waiting cycles")
+        raise TrafficLightException("Status Running was never release during the " + str(0.1*self.__max_wait_cycles) + " 1 minute waiting cycles")
 
     @synchronized_method
     def set_green_light(self):
