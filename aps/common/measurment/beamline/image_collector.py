@@ -96,12 +96,7 @@ class ImageCollector():
                 self.__detector_delay = detector_delay
 
             self.__detector_stop()
-
-            self.__PV_dict["andor_cam_image_mode"].put("Fixed")
-            self.__PV_dict["andor_tiff_filepath"].put(measurement_directory)
-            self.__PV_dict["andor_tiff_filenumber"].put(1)
-            self.__PV_dict["andor_tiff_autoincrement"].put("No")
-            self.__PV_dict["andor_cam_exposure_time"].put(exposure_time)
+            self.__set_andor_defaults(1)
         else:
             print("ImageCollector initialized in Mocking Mode")
 
@@ -111,10 +106,11 @@ class ImageCollector():
 
             dictionary = OrderedDict()
             dictionary["andor_cam_image_mode"]     = self.__PV_dict["andor_cam_image_mode"].get()
+            dictionary["andor_cam_exposure_time"]  = self.__PV_dict["andor_cam_exposure_time"].get()
             dictionary["andor_tiff_filepath"]      = self.__PV_dict["andor_tiff_filepath"].get()
             dictionary["andor_tiff_filenumber"]    = self.__PV_dict["andor_tiff_filenumber"].get()
+            dictionary["andor_tiff_savefile"]      = self.__PV_dict["andor_tiff_savefile"].get()
             dictionary["andor_tiff_autoincrement"] = self.__PV_dict["andor_tiff_autoincrement"].get()
-            dictionary["andor_cam_exposure_time"]  = self.__PV_dict["andor_cam_exposure_time"].get()
 
             file = open(IMAGE_COLLECTOR_STATUS_FILE, 'wb')
             pickle.dump(dictionary, file)
@@ -129,15 +125,17 @@ class ImageCollector():
             file.close()
 
             self.__PV_dict["andor_cam_image_mode"].put(    dictionary["andor_cam_image_mode"])
+            self.__PV_dict["andor_cam_exposure_time"].put( dictionary["andor_cam_exposure_time"])
             self.__PV_dict["andor_tiff_filepath"].put(     dictionary["andor_tiff_filepath"])
             self.__PV_dict["andor_tiff_filenumber"].put(   dictionary["andor_tiff_filenumber"])
+            self.__PV_dict["andor_tiff_savefile"].put(     dictionary["andor_tiff_savefile"])
             self.__PV_dict["andor_tiff_autoincrement"].put(dictionary["andor_tiff_autoincrement"])
-            self.__PV_dict["andor_cam_exposure_time"].put(dictionary["andor_cam_exposure_time"])
 
     def save_status(self):
         self.__to_pickle_file()
 
     def restore_status(self):
+        self.__detector_stop()  # 1 waiting time
         self.__from_pickle_file()
 
     def collect_single_shot_image(self, index=-1):
@@ -177,8 +175,12 @@ class ImageCollector():
 
     def __initialize_current_image(self, index):
         self.__detector_stop()  # 1 waiting time
+        self.__set_andor_defaults(index)
 
-        if self.__measurement_directory != self.__PV_dict["andor_tiff_filepath"]: self.__PV_dict["andor_tiff_filepath"].put(self.__measurement_directory)
+    def __set_andor_defaults(self, index):
+        self.__PV_dict["andor_cam_image_mode"].put("Fixed")
+        self.__PV_dict["andor_cam_exposure_time"].put(self.__exposure_time)
+        self.__PV_dict["andor_tiff_filepath"].put(self.__measurement_directory)
         self.__PV_dict["andor_tiff_autosave"].put("Yes")
         self.__PV_dict["andor_tiff_autoincrement"].put("No")
         self.__PV_dict["andor_tiff_filename"].put('sample_' + str(int(self.__exposure_time * 1000)) + 'ms')
