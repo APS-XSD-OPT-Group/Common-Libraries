@@ -313,7 +313,7 @@ def load_image(file_path):
     if os.path.exists(file_path):
         img = np.array(Image.open(file_path))
     else:
-        prColor('Error: wrong data path. No data is loaded.', 'red')
+        prColor('Error: wrong data path. No data is loaded:\n' + file_path, 'red')
         sys.exit()
     return np.array(img)
 

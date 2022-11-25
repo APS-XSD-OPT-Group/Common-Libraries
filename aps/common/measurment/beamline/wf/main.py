@@ -1060,6 +1060,8 @@ def do_recal_d_source(I_img_raw, I_img, para_pattern, pattern_find, image_transf
         else:
             I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh, image_transfer_matrix)
 
+        with open(os.path.join(para_pattern['saving_path'], "image_transfer_matrix.npy"), 'wb') as f: np.save(f, np.array(image_transfer_matrix), allow_pickle=False)
+
     if method == 'geometric':
 
         d_source_v, d_source_h = pattern_find.d_source_est                                          
@@ -1292,6 +1294,7 @@ if __name__ == "__main__":
                         type=int,
                         help='simple analysis yes(1)/no(0)')
 
+    print()
     args = parser.parse_args()
 
     file_img    = args.img

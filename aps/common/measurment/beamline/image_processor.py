@@ -349,6 +349,8 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy
     propagated_pattern    = None
     propagated_patternDet = None
 
+    print("PD", pattern_path)
+
     crop                 = ' '.join([str(k) for k in [-1]])
     find_transfer_matrix = True
     p_x                  = PIXEL_SIZE
@@ -390,7 +392,7 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy
               '--propagated_pattern {} --propagated_patternDet {} --saving_path {} --crop {} --det_size {} ' \
               '--p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
               '--pattern_T {} --d_source_v {} --d_source_h {} --source_v {} --source_h {} --d_prop {} ' \
-              '--mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
+              '--d_source_recal --find_transferMatrix --mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
               '--pyramid_level {} --template_size {} --window_searching {} ' \
               '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
                                                                       pattern_path, propagated_pattern, propagated_patternDet, saving_path,
