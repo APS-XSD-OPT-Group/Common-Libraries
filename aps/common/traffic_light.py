@@ -74,8 +74,8 @@ class __TrafficLightFile(TrafficLightFacade):
         except: self.__traffic_light_file = os.path.join(common_directory, application_name    + ".lock")
         try:    self.__file_access_attempts = kwargs["file_access_attempts"]
         except: self.__file_access_attempts = 10
-        try:    self.__max_wait_cycles = kwargs["max_wait_cycles"]
-        except: self.__max_wait_cycles = 120*600 # 1120 minutes
+        try:    self.__max_wait_cycles = kwargs["max_wait_time"]*600
+        except: self.__max_wait_cycles = 120*600 # 120 minutes
 
         self.__internal_dictionary = OrderedDict()
 
