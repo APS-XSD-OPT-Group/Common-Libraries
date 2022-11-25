@@ -1482,10 +1482,10 @@ if __name__ == "__main__":
             # find the proper image transfer for the reference image which matches the pattern distribution
             image_transfer_matrix = pattern_find.img_transfer_search(I_img_central, I_coh, result_folder)
             I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh, image_transfer_matrix)
-
-            with open(os.path.join(para_pattern['saving_path'], "image_transfer_matrix.npy"), 'wb') as f: np.save(f, np.array(image_transfer_matrix), allow_pickle=False)
         else:
             I_simu_whole, displace_x_offset, displace_y_offset = pattern_find.pattern_search(I_img_central, I_coh, image_transfer_matrix)
+
+        with open(os.path.join(para_pattern['saving_path'], "image_transfer_matrix.npy"), 'wb') as f: np.save(f, np.array(image_transfer_matrix), allow_pickle=False)
 
         prColor('saving the simulated pattern (det plane)...', 'cyan')
         np.savez(os.path.join(para_pattern['saving_path'], 'propagated_patternDet.npz'),
