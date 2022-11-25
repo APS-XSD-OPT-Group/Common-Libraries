@@ -46,4 +46,4 @@
 # ----------------------------------------------------------------------- #
 import os
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIRECTORY = os.path.realpath(__file__)[:-12]

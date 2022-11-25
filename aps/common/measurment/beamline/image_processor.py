@@ -339,17 +339,15 @@ def _process_image(data_collection_directory, file_name_prefix, energy, source_d
 def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy, source_distance, image_index=1, verbose=False):
     dark = None
     flat = None
-    image_path       = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
+    image_path    = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
     saving_path   = os.path.join(data_collection_directory, "simulated_mask")
     if not os.path.exists(saving_path): os.mkdir(saving_path)
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
     # pattern simulation parameters
-    pattern_path          = os.path.join(SCRIPT_DIRECTORY, '/mask/RanMask5umB0.npy')
+    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', 'RanMask5umB0.npy')
     propagated_pattern    = None
     propagated_patternDet = None
-
-    print("PD", pattern_path)
 
     crop                 = ' '.join([str(k) for k in [-1]])
     find_transfer_matrix = True

@@ -1079,7 +1079,7 @@ def do_recal_d_source(I_img_raw, I_img, para_pattern, pattern_find, image_transf
         I_simu = normalize(I_simu) * 255
 
         prColor('speckle tracking mode: area. Will use the whole cropping area for calculation.', 'cyan')
-        displace_y, displace_x, _, _, _, _, _ = speckle_tracking(
+        displace_y, displace_x, _, _, _, _ = speckle_tracking(
             I_simu, I_img, para_XST_simple, para_simulation['p_x'],
             para_simulation['d_prop'], c_w, displace_offset=[displace_y_offset, displace_x_offset])
 
@@ -1490,7 +1490,6 @@ if __name__ == "__main__":
 
         with open(os.path.join(para_pattern['saving_path'], "image_transfer_matrix.npy"), 'wb') as f: np.save(f, np.array(image_transfer_matrix), allow_pickle=False)
 
-        prColor('saving the simulated pattern (det plane)...', 'cyan')
         np.savez(os.path.join(para_pattern['saving_path'], 'propagated_patternDet.npz'),
                  I_simu_whole=I_simu_whole,
                  displace_x_offset=displace_x_offset,
