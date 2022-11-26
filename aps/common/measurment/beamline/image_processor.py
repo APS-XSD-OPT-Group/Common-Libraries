@@ -62,25 +62,28 @@ class ImageProcessor():
     def __init__(self,
                  data_collection_directory,
                  file_name_prefix=FILE_NAME_PREFIX,
+                 simulated_mask_directory=None,
                  energy=20000.0,
                  source_distance=[1.5, 1.5],
                  image_transfer_matrix=[0, 1, 0]
                  ):
         self.__data_collection_directory = data_collection_directory
         self.__file_name_prefix          = file_name_prefix
+        self.__simulated_mask_directory  = simulated_mask_directory
         self.__energy                    = energy
         self.__source_distance           = source_distance
         self.__image_transfer_matrix     = image_transfer_matrix
 
 
     def generate_simulated_mask(self, image_index_for_mask=1, verbose=False):
-        self.__image_transfer_matrix = _generate_simulated_mask(self.__data_collection_directory,
-                                                                self.__file_name_prefix,
-                                                                self.__energy,
-                                                                self.__source_distance,
-                                                                image_index=image_index_for_mask,
-                                                                verbose=verbose)
-        return self.__image_transfer_matrix
+        self.__image_transfer_matrix, is_new_mask = _generate_simulated_mask(data_collection_directory=self.__data_collection_directory,
+                                                                             file_name_prefix=self.__file_name_prefix,
+                                                                             mask_directory=self.__simulated_mask_directory,
+                                                                             energy=self.__energy,
+                                                                             source_distance=self.__source_distance,
+                                                                             image_index=image_index_for_mask,
+                                                                             verbose=verbose)
+        return self.__image_transfer_matrix, is_new_mask
 
     def get_image_data(self, image_index, verbose=False):
         return _get_image_data(self.__data_collection_directory,
@@ -264,7 +267,6 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
 
     return image, h_coord, v_coord
 
-
 def _process_image(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
     dark = None
     flat = None
@@ -336,11 +338,12 @@ def _process_image(data_collection_directory, file_name_prefix, energy, source_d
 
     print("Image " + file_name_prefix + "%05i.tif" % image_index + " processed")
 
-def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy, source_distance, image_index=1, verbose=False):
+def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_directory, energy, source_distance, image_index=1, verbose=False):
     dark = None
     flat = None
     image_path      = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
-    mask_directory  = os.path.join(data_collection_directory, "simulated_mask")
+    mask_directory  = os.path.join(data_collection_directory, "simulated_mask") if mask_directory is None else mask_directory
+    is_new_mask     = True
 
     if not os.path.exists(mask_directory): os.mkdir(mask_directory)
 
@@ -412,8 +415,9 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy
 
         print("Simulated mask generated in " + mask_directory)
     else:
+        is_new_mask = False
         print("Simulated mask already generated in " + mask_directory)
 
     with open(os.path.join(mask_directory, "image_transfer_matrix.npy"), 'rb') as f: image_transfer_matrix = numpy.load(f, allow_pickle=False)
 
-    return image_transfer_matrix.tolist()
+    return image_transfer_matrix.tolist(), is_new_mask
