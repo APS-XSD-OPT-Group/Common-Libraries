@@ -88,6 +88,7 @@ class ImageProcessor():
     def get_image_data(self, image_index, verbose=False):
         return _get_image_data(self.__data_collection_directory,
                                self.__file_name_prefix,
+                               self.__simulated_mask_directory,
                                self.__energy,
                                self.__source_distance,
                                self.__image_transfer_matrix,
@@ -97,6 +98,7 @@ class ImageProcessor():
     def process_image(self, image_index, verbose=False):
         _process_image(self.__data_collection_directory,
                        self.__file_name_prefix,
+                       self.__simulated_mask_directory,
                        self.__energy,
                        self.__source_distance,
                        self.__image_transfer_matrix,
@@ -117,6 +119,7 @@ class ImageProcessor():
             self.__active_threads[i] = ProcessingThread(thread_id = i+1,
                                                         data_collection_directory=self.__data_collection_directory,
                                                         file_name_prefix=self.__file_name_prefix,
+                                                        simulated_mask_directory=self.__simulated_mask_directory,
                                                         energy=self.__energy,
                                                         source_distance=self.__source_distance,
                                                         image_transfer_matrix=self.__image_transfer_matrix,
@@ -138,11 +141,12 @@ class ImageProcessor():
 
 class ProcessingThread(threading.Thread):
 
-    def __init__(self, thread_id, data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, verbose=False):
+    def __init__(self, thread_id, data_collection_directory, file_name_prefix, simulated_mask_directory, energy, source_distance, image_transfer_matrix, verbose=False):
         super(ProcessingThread, self).__init__(name="Thread #" + str(thread_id))
         self.__thread_id = thread_id
         self.__data_collection_directory = data_collection_directory
         self.__file_name_prefix          = file_name_prefix
+        self.__simulated_mask_directory  = simulated_mask_directory
         self.__energy                    = energy
         self.__source_distance           = source_distance
         self.__image_transfer_matrix     = image_transfer_matrix
@@ -181,6 +185,7 @@ class ProcessingThread(threading.Thread):
 
                     for image_index in image_indexes[0:n]: _process_image(self.__data_collection_directory,
                                                                           self.__file_name_prefix,
+                                                                          self.__simulated_mask_directory,
                                                                           self.__energy,
                                                                           self.__source_distance,
                                                                           self.__image_transfer_matrix,
@@ -191,11 +196,11 @@ class ProcessingThread(threading.Thread):
         print('Thread #' + str(self.__thread_id) + ' completed')
 
 
-def _get_image_data(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
+def _get_image_data(data_collection_directory, file_name_prefix, mask_directory, energy, source_distance, image_transfer_matrix, image_index, verbose):
     dark = None
     flat = None
     image_path       = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
-    mask_directory   = os.path.join(data_collection_directory, "simulated_mask")
+    mask_directory   = os.path.join(data_collection_directory, "simulated_mask") if mask_directory is None else mask_directory
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
     # pattern simulation parameters
@@ -267,11 +272,11 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
 
     return image, h_coord, v_coord
 
-def _process_image(data_collection_directory, file_name_prefix, energy, source_distance, image_transfer_matrix, image_index, verbose):
+def _process_image(data_collection_directory, file_name_prefix, mask_directory, energy, source_distance, image_transfer_matrix, image_index, verbose):
     dark = None
     flat = None
     image_path       = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
-    mask_directory   = os.path.join(data_collection_directory, "simulated_mask")
+    mask_directory   = os.path.join(data_collection_directory, "simulated_mask") if mask_directory is None else mask_directory
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
     # pattern simulation parameters
