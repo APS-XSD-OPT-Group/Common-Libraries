@@ -196,7 +196,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, energy, source_
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
     # pattern simulation parameters
-    pattern_path          = os.path.join(SCRIPT_DIRECTORY, '/mask/RanMask5umB0.npy')
+    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', 'RanMask5umB0.npy')
     propagated_pattern    = os.path.join(mask_directory, 'propagated_pattern.npz')
     propagated_patternDet = os.path.join(mask_directory, 'propagated_patternDet.npz')
 
@@ -273,7 +273,7 @@ def _process_image(data_collection_directory, file_name_prefix, energy, source_d
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
     # pattern simulation parameters
-    pattern_path          = os.path.join(SCRIPT_DIRECTORY, '/mask/RanMask5umB0.npy')
+    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask' , 'RanMask5umB0.npy')
     propagated_pattern    = os.path.join(mask_directory, 'propagated_pattern.npz')
     propagated_patternDet = os.path.join(mask_directory, 'propagated_patternDet.npz')
 
@@ -339,73 +339,79 @@ def _process_image(data_collection_directory, file_name_prefix, energy, source_d
 def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy, source_distance, image_index=1, verbose=False):
     dark = None
     flat = None
-    image_path    = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
-    saving_path   = os.path.join(data_collection_directory, "simulated_mask")
-    if not os.path.exists(saving_path): os.mkdir(saving_path)
-    result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
+    image_path      = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
+    mask_directory  = os.path.join(data_collection_directory, "simulated_mask")
 
-    # pattern simulation parameters
-    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', 'RanMask5umB0.npy')
-    propagated_pattern    = None
-    propagated_patternDet = None
+    if not os.path.exists(mask_directory): os.mkdir(mask_directory)
 
-    crop                 = ' '.join([str(k) for k in [-1]])
-    find_transfer_matrix = True
-    p_x                  = PIXEL_SIZE
-    det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
-    pattern_size         = 4.942e-6  # 4.952e-6
-    pattern_thickness    = 1.5e-6
-    pattern_T            = 0.613
-    d_prop               = 500e-3
-    source_h             = 277e-6 / (60 / 1.5)
-    source_v             = 10e-6 / (60 / 2)
-    d_source_h           = source_distance[0]
-    d_source_v           = source_distance[1]
-    show_alignFigure     = False
+    if not os.path.exists(os.path.join(mask_directory, 'propagated_pattern.npz')) or \
+       not os.path.exists(os.path.join(mask_directory, 'propagated_patternDet.npz')) or \
+       not os.path.exists(os.path.join(mask_directory, "image_transfer_matrix.npy")):
 
-    # reconstruction parameter initialization
-    mode            = 'centralLine'  # area or centralLine
-    lineWidth       = 10
-    down_sampling   = 0.5
-    method          = 'WXST'
-    use_gpu         = True
-    use_wavelet     = True
-    wavelet_cut     = 1
-    pyramid_level   = 1
-    template_size   = 21
-    window_search   = 20
-    crop_boundary   = -1
-    n_cores         = 16
-    n_group         = 1
-    verbose         = 1 if verbose else 0 # NO
-    simple_analysis = 0 # NO
+        result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
-    # alignment or not, if '', no alignment, '--alignment' with alignment
-    params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
-        '--show_alignFigure ' if show_alignFigure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
-    params = ''.join([str(item) for item in params])
+        # pattern simulation parameters
+        pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', 'RanMask5umB0.npy')
+        propagated_pattern    = None
+        propagated_patternDet = None
 
-    command = 'python ' + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
-              ' --img {} --dark {} --flat {} --result_folder {} --pattern_path {} ' \
-              '--propagated_pattern {} --propagated_patternDet {} --saving_path {} --crop {} --det_size {} ' \
-              '--p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
-              '--pattern_T {} --d_source_v {} --d_source_h {} --source_v {} --source_h {} --d_prop {} ' \
-              '--d_source_recal --find_transferMatrix --mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
-              '--pyramid_level {} --template_size {} --window_searching {} ' \
-              '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
-                                                                      pattern_path, propagated_pattern, propagated_patternDet, saving_path,
-                                                                      crop, det_array, p_x, energy,
-                                                                      pattern_size, pattern_thickness, pattern_T,
-                                                                      d_source_v, d_source_h,
-                                                                      source_v, source_h, d_prop, mode, lineWidth,
-                                                                      down_sampling, method,
-                                                                      wavelet_cut, pyramid_level, template_size,
-                                                                      window_search, n_cores,
-                                                                      n_group, verbose, simple_analysis, crop_boundary, params)
-    os.system(command)
+        crop                 = ' '.join([str(k) for k in [-1]])
+        find_transfer_matrix = True
+        p_x                  = PIXEL_SIZE
+        det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
+        pattern_size         = 4.942e-6  # 4.952e-6
+        pattern_thickness    = 1.5e-6
+        pattern_T            = 0.613
+        d_prop               = 500e-3
+        source_h             = 277e-6 / (60 / 1.5)
+        source_v             = 10e-6 / (60 / 2)
+        d_source_h           = source_distance[0]
+        d_source_v           = source_distance[1]
+        show_alignFigure     = False
 
-    print("Simulated mask generated in " + saving_path)
+        # reconstruction parameter initialization
+        mode            = 'centralLine'  # area or centralLine
+        lineWidth       = 10
+        down_sampling   = 0.5
+        method          = 'WXST'
+        use_gpu         = True
+        use_wavelet     = True
+        wavelet_cut     = 1
+        pyramid_level   = 1
+        template_size   = 21
+        window_search   = 20
+        crop_boundary   = -1
+        n_cores         = 16
+        n_group         = 1
+        verbose         = 1 if verbose else 0 # NO
+        simple_analysis = 0 # NO
 
-    with open(os.path.join(saving_path, "image_transfer_matrix.npy"), 'rb') as f: image_transfer_matrix = numpy.load(f, allow_pickle=False)
+        # alignment or not, if '', no alignment, '--alignment' with alignment
+        params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
+            '--show_alignFigure ' if show_alignFigure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
+        params = ''.join([str(item) for item in params])
+
+        command = 'python ' + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
+                  ' --img {} --dark {} --flat {} --result_folder {} --pattern_path {} ' \
+                  '--propagated_pattern {} --propagated_patternDet {} --saving_path {} --crop {} --det_size {} ' \
+                  '--p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
+                  '--pattern_T {} --d_source_v {} --d_source_h {} --source_v {} --source_h {} --d_prop {} ' \
+                  '--d_source_recal --find_transferMatrix --mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
+                  '--pyramid_level {} --template_size {} --window_searching {} ' \
+                  '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
+                                                                          pattern_path, propagated_pattern, propagated_patternDet, mask_directory,
+                                                                          crop, det_array, p_x, energy,
+                                                                          pattern_size, pattern_thickness, pattern_T,
+                                                                          d_source_v, d_source_h,
+                                                                          source_v, source_h, d_prop, mode, lineWidth,
+                                                                          down_sampling, method,
+                                                                          wavelet_cut, pyramid_level, template_size,
+                                                                          window_search, n_cores,
+                                                                          n_group, verbose, simple_analysis, crop_boundary, params)
+        os.system(command)
+
+        print("Simulated mask generated in " + mask_directory)
+
+    with open(os.path.join(mask_directory, "image_transfer_matrix.npy"), 'rb') as f: image_transfer_matrix = numpy.load(f, allow_pickle=False)
 
     return image_transfer_matrix.tolist()
