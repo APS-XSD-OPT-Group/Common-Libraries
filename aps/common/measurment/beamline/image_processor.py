@@ -411,6 +411,8 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, energy
         os.system(command)
 
         print("Simulated mask generated in " + mask_directory)
+    else:
+        print("Simulated mask already generated in " + mask_directory)
 
     with open(os.path.join(mask_directory, "image_transfer_matrix.npy"), 'rb') as f: image_transfer_matrix = numpy.load(f, allow_pickle=False)
 
