@@ -544,7 +544,6 @@ class pattern_search:
         prColor('correct translation', 'cyan')
         I_pattern_matched = image_translation(I_pattern_matched, [-ty, -tx])
         I_pattern_det = image_translation(I_pattern_det, [-ty, -tx])
-        print(I_pattern_det.shape)
         # check alignment again
         template = I_img[(int(m / 2) - 100):(int(m / 2) + 100),
                          (int(n / 2) - 100):(int(n / 2) + 100)]
@@ -1294,7 +1293,6 @@ if __name__ == "__main__":
                         type=int,
                         help='simple analysis yes(1)/no(0)')
 
-    print()
     args = parser.parse_args()
 
     file_img    = args.img
@@ -1547,7 +1545,6 @@ if __name__ == "__main__":
             para_simulation['d_prop'], c_w, displace_offset=[displace_y_offset, displace_x_offset])
         
         block_width = int(args.lineWidth*args.pattern_size / args.p_x) + 2 * para_XST['window_searching']
-        print(block_width)
 
         # do filter for displacement before calcuating the curvature
         # displace_x_filtered = snd.gaussian_filter(displace_x, 21)
@@ -1636,7 +1633,6 @@ if __name__ == "__main__":
         prColor('speckle tracking mode: centralLine. Will use the central linewidth of {}um for calculation.'.format(args.lineWidth*args.pattern_size*1e6), 'cyan')
         # crop the vertical and horizontal block for calculation
         block_width = int(args.lineWidth*args.pattern_size / args.p_x) + 2 * (args.window_searching + args.template_size*int(1/args.down_sampling))
-        print(block_width)
 
         I_img_v = I_img[:, int(I_img.shape[0] // 2 - block_width // 2):int(I_img.shape[0] // 2 - block_width // 2 + block_width)]
         I_simu_v = I_simu[:, int(I_img.shape[0] // 2 - block_width // 2):int(I_img.shape[0] // 2 - block_width // 2 + block_width)]
