@@ -138,7 +138,7 @@ class ImageCollector():
         self.__detector_stop()  # 1 waiting time
         self.__from_pickle_file()
 
-    def collect_single_shot_image(self, index=-1):
+    def collect_single_shot_image(self, index=0):
         if not self.__mocking_mode:
             self.__initialize_current_image(index)
 
