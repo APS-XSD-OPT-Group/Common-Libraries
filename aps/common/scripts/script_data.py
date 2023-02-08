@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# ----------------------------------------------------------------------- #
-# Copyright (c) 2022, UChicago Argonne, LLC. All rights reserved.         #
+# #########################################################################
+# Copyright (c) 2020, UChicago Argonne, LLC. All rights reserved.         #
 #                                                                         #
-# Copyright 2022. UChicago Argonne, LLC. This software was produced       #
+# Copyright 2020. UChicago Argonne, LLC. This software was produced       #
 # under U.S. Government contract DE-AC02-06CH11357 for Argonne National   #
 # Laboratory (ANL), which is operated by UChicago Argonne, LLC for the    #
 # U.S. Department of Energy. The U.S. Government has rights to use,       #
@@ -43,9 +41,30 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN       #
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE         #
 # POSSIBILITY OF SUCH DAMAGE.                                             #
-# ----------------------------------------------------------------------- #
+# #########################################################################
+import copy
 
-class AbstractScript():
-    def execute_script(self, **kwargs): raise NotImplementedError()
-    def manage_keyboard_interrupt(self): pass
+class ScriptData():
+    def __init__(self, **parameters):
+        self.__parameters = parameters
 
+    def get_parameters(self):
+        return self.__parameters
+
+    def get_parameter(self, parameter_name, default_value=None):
+        try:    return self.__parameters[parameter_name]
+        except: return default_value
+
+    def set_parameter(self, parameter_name, value):
+        self.__parameters[parameter_name] = value
+
+    def duplicate(self):
+        duplicated = self._get_instance_to_duplicate()
+
+        for parameter_name in self.__parameters.keys():
+            duplicated.set_parameter(parameter_name, copy.deepcopy(self.get_parameter(parameter_name)))
+
+        return duplicated
+
+    def _get_instance_to_duplicate(self):
+        return ScriptData()
