@@ -45,50 +45,44 @@
 # POSSIBILITY OF SUCH DAMAGE.                                             #
 # ----------------------------------------------------------------------- #
 
-import sys
 
-def print_color(word, color_type='black'):
-    ''' function to print color text in terminal
-        input:
-            word:           word to print
-            color_type:     which color
-                            'red', 'green', 'yellow'
-                            'light_purple', 'purple'
-                            'cyan', 'light_gray'
-                            'black'
-    '''
-    end_c = '\033[00m'
-    if color_type == 'red':
-        start_c = '\033[91m'
-    elif color_type == 'green':
-        start_c = '\033[92m'
-    elif color_type == 'yellow':
-        start_c = '\033[93m'
-    elif color_type == 'light_purple':
-        start_c = '\033[94m'
-    elif color_type == 'purple':
-        start_c = '\033[95m'
-    elif color_type == 'cyan':
-        start_c = '\033[96m'
-    elif color_type == 'light_gray':
-        start_c = '\033[97m'
-    elif color_type == 'black':
-        start_c = '\033[98m'
-    else:
-        print('color not recognized')
-        sys.exit()
+from PyQt5.QtWidgets import QWidget
+from PyQt5.Qt import QTextCursor
 
-    print(start_c + str(word) + end_c)
+from aps.common.logger import LogStream
+from aps.common.plot import gui
 
+class LogStreamWidget(LogStream):
+    class Widget(QWidget):
+        def __init__(self, width=850, height=400):
+            QWidget.__init__(self)
 
-from time import strftime
+            self.setFixedHeight(height)
+            self.setFixedWidth(width)
 
-# time functions
-def datetime_now_str():
-    return strftime("%Y%m%d_%H%M%S")
+            text_area_box = gui.widgetBox(self, "", orientation="vertical", height=height, width=width)
 
-def time_now_str():
-    return strftime("%H%M%S")
+            self.__text_area = gui.textArea(height=height-5, width=width-5, readOnly=True)
+            self.__text_area.setText("")
 
-def date_now_str():
-    return strftime("%Y%m%d")
+            text_area_box.layout().addWidget(self.__text_area)
+
+        def write(self, text):
+            cursor = self.__text_area.textCursor()
+            cursor.movePosition(QTextCursor.End)
+            cursor.insertText(text)
+            self.__text_area.setTextCursor(cursor)
+            self.__text_area.ensureCursorVisible()
+
+        def clear_log(self):
+            self.__text_area.clear()
+
+    def __init__(self, width=850, height=400):
+        self.__widget = LogStreamWidget.Widget(width, height)
+
+    def close(self): pass
+    def write(self, text): self.__widget.write(text)
+    def flush(self, *args, **kwargs): pass
+
+    def get_widget(self):
+        return self.__widget
