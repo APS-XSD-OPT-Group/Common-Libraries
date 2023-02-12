@@ -139,16 +139,13 @@ class __FullLogger(LoggerFacade):
         self.__print_color(str(prefix) + str(message), color=color)
 
     def print_message(self, message):
-        self.__print_color("MESSAGE: " + str(message), color=LoggerColor.BLUE)
+        self.__print_color("MESSAGE: " + str(message), color=LoggerColor.CYAN)
 
     def print_warning(self, message):
         self.__print_color("WARNING: " + str(message), color=LoggerColor.MAGENTA)
 
     def print_error(self, message):
-        self.__print_color("ERROR: " + str(message),
-                           color=LoggerColor.RED,
-                           highlights=LoggerHighlights.ON_GREEN,
-                           attrs=[LoggerAttributes.BOLD, LoggerAttributes.BLINK])
+        self.__print_color("ERROR: " + str(message), color=LoggerColor.RED, highlights=LoggerHighlights.ON_GREEN, attrs=[LoggerAttributes.BOLD, LoggerAttributes.BLINK])
 
 class __NullLogger(LoggerFacade):
     def __init__(self, stream=DEFAULT_STREAM): pass

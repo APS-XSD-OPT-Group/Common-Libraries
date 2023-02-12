@@ -81,17 +81,16 @@ class GenericWidget(QWidget, AbstractGenericWidget):
         layout = QHBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
 
-        try: self.__allows_saving = kwargs["allows_saving"]
-        except: self.__allows_saving = True
-
-        try: self.__ignores_figure_dimensions = kwargs["ignores_figure_dimensions"]
+        try:    self.__allows_saving             = kwargs["allows_saving"]
+        except: self.__allows_saving             = True
+        try:    self.__ignores_figure_dimensions = kwargs["ignores_figure_dimensions"]
         except: self.__ignores_figure_dimensions = False
 
         figure = self.build_mpl_figure(**kwargs)
 
         if not self._ignores_figure_dimensions():
-            try:    figure_width = kwargs["figure_width"]*pixels_to_inches
-            except: figure_width = figure.get_figwidth()
+            try:    figure_width  = kwargs["figure_width"]*pixels_to_inches
+            except: figure_width  = figure.get_figwidth()
             try:    figure_height = kwargs["figure_height"]*pixels_to_inches
             except: figure_height = figure.get_figheight()
 
@@ -103,8 +102,8 @@ class GenericWidget(QWidget, AbstractGenericWidget):
 
         self.append_mpl_figure_to_save(canvas.figure)
 
-        try:    widget_width = kwargs["widget_width"]
-        except: widget_width = canvas.get_width_height()[0]*1.1
+        try:    widget_width  = kwargs["widget_width"]
+        except: widget_width  = canvas.get_width_height()[0]*1.1
         try:    widget_height = kwargs["widget_height"]
         except: widget_height = canvas.get_width_height()[1]*1.1
 
@@ -132,14 +131,17 @@ class GenericWidget(QWidget, AbstractGenericWidget):
         if self._allows_saving(): return self.__figures_to_save
         else: return None
 
+class DialogProperties(object):
+    standard_buttons = [QDialogButtonBox.Ok, QDialogButtonBox.Cancel]
+
 class GenericInteractiveWidget(QDialog, AbstractGenericWidget):
 
-    def __init__(self, parent, message, title, application_name=None, **kwargs):
+    def __init__(self, parent, message, title, application_name=None, standard_buttons = [QDialogButtonBox.Ok, QDialogButtonBox.Cancel], is_modal=True, **kwargs):
         QDialog.__init__(self, parent)
         AbstractGenericWidget.__init__(self, application_name=application_name)
 
         self.setWindowTitle(message)
-        self.setModal(True)
+        self.setModal(is_modal)
 
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
@@ -149,11 +151,12 @@ class GenericInteractiveWidget(QDialog, AbstractGenericWidget):
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignCenter)
 
-        button_box = QDialogButtonBox(orientation=Qt.Horizontal,
-                                      standardButtons=QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        standardButtons = None
+        for sb in standard_buttons: standardButtons = sb if standardButtons is None else standardButtons | sb
 
-        button_box.accepted.connect(self.__accepted)
-        button_box.rejected.connect(self.__rejected)
+        button_box = QDialogButtonBox(orientation=Qt.Horizontal, standardButtons=standardButtons)
+        if QDialogButtonBox.Ok in standard_buttons:     button_box.accepted.connect(self.__accepted)
+        if QDialogButtonBox.Cancel in standard_buttons: button_box.rejected.connect(self.__rejected)
         layout.addWidget(self.__central_widget)
         layout.addWidget(button_box)
 

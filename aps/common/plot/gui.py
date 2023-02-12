@@ -357,7 +357,6 @@ def textArea(height=None, width=None, readOnly=True, noWrap=None):
 
     return area
 
-
 import six, os
 
 def package_dirname(package):

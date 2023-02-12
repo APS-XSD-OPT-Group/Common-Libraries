@@ -46,36 +46,62 @@
 # ----------------------------------------------------------------------- #
 
 
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QHBoxLayout
+from PyQt5.QtCore import Qt
 from PyQt5.Qt import QTextCursor
 
-from aps.common.logger import LogStream
+from aps.common.logger import LogStream, LoggerColor
 from aps.common.plot import gui
 
 class LogStreamWidget(LogStream):
     class Widget(QWidget):
-        def __init__(self, width=850, height=400):
+        def __init__(self, width, height):
             QWidget.__init__(self)
 
-            self.setFixedHeight(height)
-            self.setFixedWidth(width)
+            self.__text_area_box = gui.widgetBox(self, "", orientation="vertical", height=height, width=width)
 
-            text_area_box = gui.widgetBox(self, "", orientation="vertical", height=height, width=width)
-
-            self.__text_area = gui.textArea(height=height-5, width=width-5, readOnly=True)
+            self.__text_area = gui.textArea(readOnly=True)
             self.__text_area.setText("")
 
-            text_area_box.layout().addWidget(self.__text_area)
+            self.__text_area_box.layout().addWidget(self.__text_area)
 
-        def write(self, text):
+            self.set_widget_size(width, height)
+
+        def write(self, text : str):
+            if "ERROR" in text:
+                tokens = text.split(sep="ERROR")
+                color = "#ff0000"
+                text = "ERROR" + tokens[1][:-5]
+            elif "WARNING" in text:
+                tokens = text.split(sep="WARNING")
+                color = "#ff00ff"
+                text = "WARNING" + tokens[1][:-5]
+            elif "MESSAGE" in text:
+                tokens = text.split(sep="MESSAGE")
+                color = "#00ffff"
+                text = "MESSAGE" + tokens[1][:-5]
+            else:
+                color = "#000000"
+
             cursor = self.__text_area.textCursor()
             cursor.movePosition(QTextCursor.End)
-            cursor.insertText(text)
+            cursor.insertHtml("<span style=\"color:" + color + ";\" >"
+                              + text +
+                              "</span>")
+            cursor.insertText("\n")
             self.__text_area.setTextCursor(cursor)
             self.__text_area.ensureCursorVisible()
 
         def clear_log(self):
             self.__text_area.clear()
+
+        def set_widget_size(self, width, height):
+            self.setFixedWidth(width)
+            self.setFixedHeight(height)
+            self.__text_area_box.setFixedWidth(width)
+            self.__text_area_box.setFixedHeight(height)
+            self.__text_area.setFixedHeight(height - 5)
+            self.__text_area.setFixedWidth(width - 5)
 
     def __init__(self, width=850, height=400):
         self.__widget = LogStreamWidget.Widget(width, height)
@@ -83,6 +109,10 @@ class LogStreamWidget(LogStream):
     def close(self): pass
     def write(self, text): self.__widget.write(text)
     def flush(self, *args, **kwargs): pass
+    def is_color_active(self): return True
 
     def get_widget(self):
         return self.__widget
+
+    def set_widget_size(self, width=850, height=400):
+        self.__widget.set_widget_size(width, height)
