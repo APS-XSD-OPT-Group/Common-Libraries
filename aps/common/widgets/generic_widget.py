@@ -72,19 +72,16 @@ class GenericWidget(QWidget, AbstractGenericWidget):
         QWidget.__init__(self, parent=parent)
         AbstractGenericWidget.__init__(self, application_name=application_name)
 
-        self.__allows_saving = True
-        self.__ignores_figure_dimensions = False
+        try:    self.__allows_saving             = kwargs["allows_saving"]
+        except: self.__allows_saving             = True
+        try:    self.__ignores_figure_dimensions = kwargs["ignores_figure_dimensions"]
+        except: self.__ignores_figure_dimensions = False
 
     def get_plot_tab_name(self): raise NotImplementedError()
 
     def build_widget(self, **kwargs):
         layout = QHBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
-
-        try:    self.__allows_saving             = kwargs["allows_saving"]
-        except: self.__allows_saving             = True
-        try:    self.__ignores_figure_dimensions = kwargs["ignores_figure_dimensions"]
-        except: self.__ignores_figure_dimensions = False
 
         figure = self.build_mpl_figure(**kwargs)
 
@@ -131,18 +128,13 @@ class GenericWidget(QWidget, AbstractGenericWidget):
         if self._allows_saving(): return self.__figures_to_save
         else: return None
 
-class DialogProperties(object):
-    standard_buttons = [QDialogButtonBox.Ok, QDialogButtonBox.Cancel]
-
 class GenericInteractiveWidget(QDialog, AbstractGenericWidget):
 
-    def __init__(self, parent, message, title, application_name=None, standard_buttons = [QDialogButtonBox.Ok, QDialogButtonBox.Cancel], is_modal=True, **kwargs):
+    def __init__(self, parent, message, title, application_name=None, standard_buttons = [QDialogButtonBox.Ok, QDialogButtonBox.Cancel], **kwargs):
         QDialog.__init__(self, parent)
         AbstractGenericWidget.__init__(self, application_name=application_name)
 
         self.setWindowTitle(message)
-        self.setModal(is_modal)
-
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint)
 
@@ -180,7 +172,7 @@ class GenericInteractiveWidget(QDialog, AbstractGenericWidget):
         return self.__central_widget
 
     @classmethod
-    def get_output(cls, dialog):
+    def get_output(cls, dialog : QDialog):
         dialog.exec_()
 
         return dialog.get_output_object()
