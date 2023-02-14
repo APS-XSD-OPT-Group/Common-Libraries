@@ -132,6 +132,30 @@ class __FullLogger(LoggerFacade):
         self.__stream.flush()
 
     def __print_color(self, message, color=LoggerColor.GREY, highlights=LoggerHighlights.NONE, attrs=LoggerAttributes.NONE):
+        '''
+        end_c = '\033[00m'
+        if color == 'red':
+            start_c = '\033[91m'
+        elif color == 'green':
+            start_c = '\033[92m'
+        elif color == 'yellow':
+            start_c = '\033[93m'
+        elif color == 'light_purple':
+            start_c = '\033[94m'
+        elif color == 'magenta': #'purple':
+            start_c = '\033[95m'
+        elif color == 'cyan':
+            start_c = '\033[96m'
+        elif color == 'light_gray':
+            start_c = '\033[97m'
+        elif color == 'black':
+            start_c = '\033[98m'
+        else:
+            print('color not right')
+            sys.exit()
+
+        self.__stream.write((start_c + str(message) + end_c) if self.__color_active else (message + "\n"))
+        '''
         self.__stream.write(termcolor.colored(message + "\n", color, highlights, attrs=attrs) if self.__color_active else (message + "\n"))
         self.__stream.flush()
 
@@ -139,7 +163,7 @@ class __FullLogger(LoggerFacade):
         self.__print_color(str(prefix) + str(message), color=color)
 
     def print_message(self, message):
-        self.__print_color("MESSAGE: " + str(message), color=LoggerColor.CYAN)
+        self.__print_color("MESSAGE: " + str(message), color=LoggerColor.BLUE)
 
     def print_warning(self, message):
         self.__print_color("WARNING: " + str(message), color=LoggerColor.MAGENTA)

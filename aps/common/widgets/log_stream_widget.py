@@ -55,31 +55,31 @@ from aps.common.plot import gui
 
 class LogStreamWidget(LogStream):
     class Widget(QWidget):
-        def __init__(self, width, height):
+        def __init__(self, width, height, color):
             QWidget.__init__(self)
 
             self.__text_area_box = gui.widgetBox(self, "", orientation="vertical", height=height, width=width)
 
             self.__text_area = gui.textArea(readOnly=True)
             self.__text_area.setText("")
-
+            self.__text_area.setStyleSheet("background-color: " + color)
             self.__text_area_box.layout().addWidget(self.__text_area)
 
             self.set_widget_size(width, height)
 
         def write(self, text : str):
             if "ERROR" in text:
-                tokens = text.split(sep="ERROR")
+                tokens = text.split(sep="ERROR: ")
                 color = "#ff0000"
-                text = "ERROR" + tokens[1][:-5]
+                text = tokens[1][:-5]
             elif "WARNING" in text:
-                tokens = text.split(sep="WARNING")
+                tokens = text.split(sep="WARNING: ")
                 color = "#ff00ff"
-                text = "WARNING" + tokens[1][:-5]
+                text = tokens[1][:-5]
             elif "MESSAGE" in text:
-                tokens = text.split(sep="MESSAGE")
-                color = "#00ffff"
-                text = "MESSAGE" + tokens[1][:-5]
+                tokens = text.split(sep="MESSAGE: ")
+                color = "#0000ff" #"#00ffff"
+                text = tokens[1][:-5]
             else:
                 color = "#000000"
 
@@ -103,8 +103,8 @@ class LogStreamWidget(LogStream):
             self.__text_area.setFixedHeight(height - 5)
             self.__text_area.setFixedWidth(width - 5)
 
-    def __init__(self, width=850, height=400):
-        self.__widget = LogStreamWidget.Widget(width, height)
+    def __init__(self, width=850, height=400, color='white'):
+        self.__widget = LogStreamWidget.Widget(width, height, color)
 
     def close(self): pass
     def write(self, text): self.__widget.write(text)
