@@ -110,20 +110,20 @@ class GenericQTScript():
 
         register_qt_application_instance(QtApplicationMode.SHOW if PLOTTER_MODE in [PlotterMode.FULL, PlotterMode.DISPLAY_ONLY] else QtApplicationMode.HIDE)
 
-        self._register_logger_instance(logger_mode=LOGGER_MODE, application_name=self._get_application_name())
-        self._register_ini_instance(ini_mode=INI_MODE, application_name=self._get_application_name())
-        self._register_plotter_instance(plotter_mode=PLOTTER_MODE, application_name=self._get_application_name())
+        self._register_logger_instance(logger_mode=LOGGER_MODE, application_name=self._get_application_name(), **args)
+        self._register_ini_instance(ini_mode=INI_MODE, application_name=self._get_application_name(), **args)
+        self._register_plotter_instance(plotter_mode=PLOTTER_MODE, application_name=self._get_application_name(), **args)
 
 
     def _get_application_name(self): return None
 
-    def _register_logger_instance(self, logger_mode, application_name):
+    def _register_logger_instance(self, logger_mode, application_name, **args):
         register_logger_single_instance(logger_mode=logger_mode, application_name=application_name)
 
-    def _register_ini_instance(self, ini_mode, application_name):
+    def _register_ini_instance(self, ini_mode, application_name, **args):
         register_ini_instance(ini_mode,
                               ini_file_name=self._get_ini_file_name() if ini_mode == IniMode.LOCAL_FILE else None,
                               application_name=application_name)
 
-    def _register_plotter_instance(self, plotter_mode, application_name):
+    def _register_plotter_instance(self, plotter_mode, application_name, **args):
         register_plotter_instance(plotter_mode=plotter_mode, application_name=application_name)
