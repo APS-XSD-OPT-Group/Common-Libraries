@@ -52,7 +52,7 @@ except AttributeError:
 
 NAME = 'aps_common_libraries'
 
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 ISRELEASED = False
 
 DESCRIPTION = 'APS Common Libraries'
@@ -87,6 +87,9 @@ INSTALL_REQUIRES = (
     'setuptools',
     'numpy',
     'scipy',
+    'matplotlib',
+    'scikit-image',
+    'pyepics',
 )
 
 SETUP_REQUIRES = (

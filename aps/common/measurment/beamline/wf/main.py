@@ -7,7 +7,6 @@
 import os
 import sys
 
-import numpy
 import numpy as np
 import argparse
 import scipy.constants as sc
