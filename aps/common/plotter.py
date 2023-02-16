@@ -62,6 +62,7 @@ class PlotterFacade:
     def draw_context(self, context_key, add_context_label=True, unique_id=None, **kwargs): raise NotImplementedError
     def show_interactive_plot(self, widget_class, container_widget, **kwargs): raise NotImplementedError()
     def show_context_window(self, context_key, unique_id=None): raise NotImplementedError()
+    def raise_context_window(self, context_key, unique_id=None): raise NotImplementedError()
 
 class PlotterMode:
     FULL         = 0
@@ -214,6 +215,14 @@ class _AbstractActivePlotter(_AbstractPlotter):
         if context_key in self.__context_window_registry: self.__context_window_registry[context_key].show()
         else: pass
 
+    def raise_context_window(self, context_key, unique_id=None):
+        if not unique_id is None: context_key += "_" + unique_id
+        if context_key in self.__context_window_registry:
+            window = self.__context_window_registry[context_key]
+            window.setWindowFlags(window.windowFlags() | Qt.WindowStaysOnTopHint)
+            window.show()
+        else: pass
+
 class FullPlotter(_AbstractActivePlotter):
     def __init__(self, application_name=None): _AbstractActivePlotter.__init__(self, application_name=application_name)
     def is_saving(self): return True
@@ -225,7 +234,8 @@ class FullPlotter(_AbstractActivePlotter):
 class DisplayOnlyPlotter(_AbstractActivePlotter):
     def __init__(self, application_name=None): _AbstractActivePlotter.__init__(self, application_name=application_name)
     def is_saving(self): return False
-    def push_plot_on_context(self, context_key, widget_class, unique_id=None, **kwargs): self._register_plot(context_key, self._build_plot(widget_class=widget_class, application_name=self._application_name, **kwargs), unique_id)
+    def push_plot_on_context(self, context_key, widget_class, unique_id=None, **kwargs):
+        self._register_plot(context_key, self._build_plot(widget_class=widget_class, application_name=self._application_name, **kwargs), unique_id)
 
 class SaveOnlyPlotter(_AbstractActivePlotter):
     def __init__(self, application_name=None): _AbstractActivePlotter.__init__(self, application_name=application_name)
@@ -238,6 +248,7 @@ class SaveOnlyPlotter(_AbstractActivePlotter):
     def draw_context_on_widget(self, context_key, container_widget, add_context_label=True, unique_id=None, **kwargs): pass
     def show_interactive_plot(self, widget_class, container_widget, **kwargs): pass
     def show_context_window(self, context_key, unique_id=None): pass
+    def raise_context_window(self, context_key, unique_id=None): pass
 
 class NullPlotter(_AbstractPlotter):
     def __init__(self, application_name=None): _AbstractActivePlotter.__init__(self, application_name=application_name)
@@ -250,6 +261,7 @@ class NullPlotter(_AbstractPlotter):
     def draw_context_on_widget(self, context_key, container_widget, add_context_label=True, unique_id=None, **kwargs): pass
     def show_interactive_plot(self, widget_class, container_widget, **kwargs): pass
     def show_context_window(self, context_key, unique_id=None): pass
+    def raise_context_window(self, context_key, unique_id=None): pass
 
 from aps.common.registry import GenericRegistry
 

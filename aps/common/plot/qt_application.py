@@ -65,14 +65,14 @@ class QtApplicationMode:
     HIDE = 99
 
 class QtApplicationFacade:
-    def show_application_closer(self, send_back=False, widget_above=None): raise NotImplementedError()
+    def show_application_closer(self): raise NotImplementedError()
     def run_qt_application(self): raise NotImplementedError()
     def get_native_qt_object(self): raise NotImplementedError()
 
 class __NullQtApplication(QtApplicationFacade):
     def __init__(self): self.__qt_application = QApplication(sys.argv)
     def run_qt_application(self): self.__qt_application.exec_()
-    def show_application_closer(self, send_back=False, widget_above=None): sys.exit(0)
+    def show_application_closer(self): sys.exit(0)
     def get_native_qt_object(self): return self.__qt_application
 
 class __QtApplication(QtApplicationFacade):
@@ -81,14 +81,10 @@ class __QtApplication(QtApplicationFacade):
         self.__qt_application.setStyle(QStyleFactory.create('Fusion')) # 'Windows'
         self.__application_closer = CloseApp()
 
-    def show_application_closer(self, send_back=False, widget_above=None):
+    def show_application_closer(self):
         self.__application_closer.show()
 
-        if send_back:
-            self.__application_closer.lower()
-            self.__application_closer.stackUnder(widget_above)
-
-    def run_qt_application(self): 
+    def run_qt_application(self):
         self.__qt_application.exec_()
 
     def get_native_qt_object(self): return self.__qt_application
