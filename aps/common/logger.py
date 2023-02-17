@@ -79,34 +79,173 @@ class LoggerMode:
         if logger_mode==cls.NONE: return "None" 
 
 class LoggerColor:
-    GREY = "grey"
-    RED = "red"
-    GREEN = "green"
-    YELLOW = "yellow"
-    BLUE = "blue"
+    GRAY    = "grey"
+    RED     = "red"
+    GREEN   = "green"
+    YELLOW  = "yellow"
+    BLUE    = "blue"
     MAGENTA = "magenta"
-    CYAN = "cyan"
-    WHITE = "white"
+    CYAN    = "cyan"
+    WHITE   = "white"
 
 class LoggerHighlights:
-    NONE = None
-    ON_GREY = "on_grey"
-    ON_RED = "on_red"
-    ON_GREEN = "on_green"
-    ON_YELLOW = "on_yellow"
-    ON_BLUE = "on_blue"
+    NONE       = None
+    ON_GREY    = "on_grey"
+    ON_RED     = "on_red"
+    ON_GREEN   = "on_green"
+    ON_YELLOW  = "on_yellow"
+    ON_BLUE    = "on_blue"
     ON_MAGENTA = "on_magenta"
-    ON_CYAN = "on_cyan"
-    ON_WHITE = "on_white"
+    ON_CYAN    = "on_cyan"
+    ON_WHITE   = "on_white"
 
 class LoggerAttributes:
-    NONE = None
-    BOLD = "bold"
-    DARK = "dark"
+    NONE      = None
+    BOLD      = "bold"
+    DARK      = "dark"
     UNDERLINE = "underline"
-    BLINK = "blink"
-    REVERSE = "reverse"
+    BLINK     = "blink"
+    REVERSE   = "reverse"
     CONCEALED = "concealed"
+
+class _InnerColors:
+    END = "\033[00m"
+
+    BOLD          = "\033[1m"
+    DARK          = "\033[2m"
+    UNDERLINE     = "\033[4m"
+    BLINK         = "\033[5m"
+    REVERSE       = "\033[7m"
+    CONCEALED     = "\033[8m"
+
+    RESET_BOLD      = "\033[21m"
+    RESET_DARK      = "\033[22m"
+    RESET_UNDERLINE = "\033[24m"
+    RESET_BLINK     = "\033[25m"
+    RESET_REVERSE   = "\033[27m"
+    RESET_CONCEALED = "\033[28m"
+
+    DEFAULT      = "\033[39m"
+    BLACK        = "\033[30m"
+    RED          = "\033[31m"
+    GREEN        = "\033[32m"
+    YELLOW       = "\033[33m"
+    BLUE         = "\033[34m"
+    MAGENTA      = "\033[35m"
+    CYAN         = "\033[36m"
+    LIGHTGRAY    = "\033[37m"
+    DARKGRAY     = "\033[90m"
+    LIGHTRED     = "\033[91m"
+    LIGHTGREEN   = "\033[92m"
+    LIGHTYELLOW  = "\033[93m"
+    LIGHTBLUE    = "\033[94m"
+    LIGHTMAGENTA = "\033[95m"
+    LIGHTCYAN    = "\033[96m"
+    WHITE        = "\033[97m"
+
+    BACKGROUND_DEFAULT      = "\033[49m"
+    BACKGROUND_BLACK        = "\033[40m"
+    BACKGROUND_RED          = "\033[41m"
+    BACKGROUND_GREEN        = "\033[42m"
+    BACKGROUND_YELLOW       = "\033[43m"
+    BACKGROUND_BLUE         = "\033[44m"
+    BACKGROUND_MAGENTA      = "\033[45m"
+    BACKGROUND_CYAN         = "\033[46m"
+    BACKGROUND_LIGHTGRAY    = "\033[47m"
+    BACKGROUND_DARKGRAY     = "\033[100m"
+    BACKGROUND_LIGHTRED     = "\033[101m"
+    BACKGROUND_LIGHTGREEN   = "\033[102m"
+    BACKGROUND_LIGHTYELLOW  = "\033[103m"
+    BACKGROUND_LIGHTBLUE    = "\033[104m"
+    BACKGROUND_LIGHTMAGENTA = "\033[105m"
+    BACKGROUND_LIGHTCYAN    = "\033[106m"
+    BACKGROUND_WHITE        = "\033[107m"
+
+
+def _strip_colored_string(text):
+    color = None
+    highlight = None
+    attrs = None
+
+    if _InnerColors.END[1:] == text[-4:]:
+        text = text[:-5]
+
+        has_attributes = True
+        if   text [1:4] == _InnerColors.BOLD[1:]      : attrs = LoggerAttributes.BOLD
+        elif text [1:4] == _InnerColors.DARK[1:]      : attrs = LoggerAttributes.DARK
+        elif text [1:4] == _InnerColors.UNDERLINE[1:] : attrs = LoggerAttributes.UNDERLINE
+        elif text [1:4] == _InnerColors.BLINK[1:]     : attrs = LoggerAttributes.BLINK
+        elif text [1:4] == _InnerColors.REVERSE[1:]   : attrs = LoggerAttributes.REVERSE
+        elif text [1:4] == _InnerColors.CONCEALED[1:] : attrs = LoggerAttributes.CONCEALED
+        else: has_attributes = False
+        if has_attributes == True: text = text[4:]
+
+        has_highlights = True
+        if   text [1:6] == _InnerColors.BACKGROUND_DARKGRAY[1:] : highlight = LoggerHighlights.ON_GREY
+        elif text [1:5] == _InnerColors.BACKGROUND_RED[1:]      : highlight = LoggerHighlights.ON_RED
+        elif text [1:5] == _InnerColors.BACKGROUND_GREEN[1:]    : highlight = LoggerHighlights.ON_GREEN
+        elif text [1:5] == _InnerColors.BACKGROUND_YELLOW[1:]   : highlight = LoggerHighlights.ON_YELLOW
+        elif text [1:5] == _InnerColors.BACKGROUND_BLUE[1:]     : highlight = LoggerHighlights.ON_BLUE
+        elif text [1:5] == _InnerColors.BACKGROUND_MAGENTA[1:]  : highlight = LoggerHighlights.ON_MAGENTA
+        elif text [1:5] == _InnerColors.BACKGROUND_CYAN[1:]     : highlight = LoggerHighlights.ON_CYAN
+        elif text [1:5] == _InnerColors.BACKGROUND_WHITE[1:]    : highlight = LoggerHighlights.ON_WHITE
+        else: has_highlights = False
+        if has_highlights == True: text = text[6:] if highlight == LoggerHighlights.ON_GREY else text[5:]
+
+        has_color = True
+        if   text [1:5] == _InnerColors.DARKGRAY[1:] : color = LoggerColor.GRAY
+        elif text [1:5] == _InnerColors.RED[1:]      : color = LoggerColor.RED
+        elif text [1:5] == _InnerColors.GREEN[1:]    : color = LoggerColor.GREEN
+        elif text [1:5] == _InnerColors.YELLOW[1:]   : color = LoggerColor.YELLOW
+        elif text [1:5] == _InnerColors.BLUE[1:]     : color = LoggerColor.BLUE
+        elif text [1:5] == _InnerColors.MAGENTA[1:]  : color = LoggerColor.MAGENTA
+        elif text [1:5] == _InnerColors.CYAN[1:]     : color = LoggerColor.CYAN
+        elif text [1:5] == _InnerColors.WHITE[1:]    : color = LoggerColor.WHITE
+        else: has_color = False
+
+        if has_color == True: text = text[5:]
+
+        return text, color, highlight, attrs
+    else:
+        return text, None, None, None
+
+def _get_colored_string(text, color, highlight, attrs):
+    changed_color     = True
+    changed_highlight = True
+    changed_attrs     = True
+
+    if   color == LoggerColor.GRAY:    text = _InnerColors.DARKGRAY + text
+    elif color == LoggerColor.RED:     text = _InnerColors.RED      + text
+    elif color == LoggerColor.GREEN:   text = _InnerColors.GREEN    + text
+    elif color == LoggerColor.YELLOW:  text = _InnerColors.YELLOW   + text
+    elif color == LoggerColor.BLUE:    text = _InnerColors.BLUE     + text
+    elif color == LoggerColor.MAGENTA: text = _InnerColors.MAGENTA  + text
+    elif color == LoggerColor.CYAN:    text = _InnerColors.CYAN     + text
+    elif color == LoggerColor.WHITE:   text = _InnerColors.WHITE    + text
+    else:                              changed_color = False
+
+    if   highlight == LoggerHighlights.NONE:       changed_highlight = False
+    elif highlight == LoggerHighlights.ON_GREY:    text = _InnerColors.BACKGROUND_DARKGRAY + text
+    elif highlight == LoggerHighlights.ON_RED:     text = _InnerColors.BACKGROUND_RED      + text
+    elif highlight == LoggerHighlights.ON_GREEN:   text = _InnerColors.BACKGROUND_GREEN    + text
+    elif highlight == LoggerHighlights.ON_YELLOW:  text = _InnerColors.BACKGROUND_YELLOW   + text
+    elif highlight == LoggerHighlights.ON_BLUE:    text = _InnerColors.BACKGROUND_BLUE     + text
+    elif highlight == LoggerHighlights.ON_MAGENTA: text = _InnerColors.BACKGROUND_MAGENTA  + text
+    elif highlight == LoggerHighlights.ON_CYAN:    text = _InnerColors.BACKGROUND_CYAN     + text
+    elif highlight == LoggerHighlights.ON_WHITE:   text = _InnerColors.BACKGROUND_WHITE    + text
+
+    if   attrs == LoggerAttributes.NONE:      changed_attrs = False
+    elif attrs == LoggerAttributes.BOLD:      text = _InnerColors.BOLD      + text
+    elif attrs == LoggerAttributes.DARK:      text = _InnerColors.DARK      + text
+    elif attrs == LoggerAttributes.UNDERLINE: text = _InnerColors.UNDERLINE + text
+    elif attrs == LoggerAttributes.BLINK:     text = _InnerColors.BLINK     + text
+    elif attrs == LoggerAttributes.REVERSE:   text = _InnerColors.REVERSE   + text
+    elif attrs == LoggerAttributes.CONCEALED: text = _InnerColors.CONCEALED + text
+
+    if changed_color or changed_highlight or changed_attrs: text += _InnerColors.END
+    else:                                                   text += "\n"
+
+    return text
 
 import platform
 
@@ -131,35 +270,11 @@ class __FullLogger(LoggerFacade):
         self.__stream.write(message + "\n")
         self.__stream.flush()
 
-    def __print_color(self, message, color=LoggerColor.GREY, highlights=LoggerHighlights.NONE, attrs=LoggerAttributes.NONE):
-        '''
-        end_c = '\033[00m'
-        if color == 'red':
-            start_c = '\033[91m'
-        elif color == 'green':
-            start_c = '\033[92m'
-        elif color == 'yellow':
-            start_c = '\033[93m'
-        elif color == 'light_purple':
-            start_c = '\033[94m'
-        elif color == 'magenta': #'purple':
-            start_c = '\033[95m'
-        elif color == 'cyan':
-            start_c = '\033[96m'
-        elif color == 'light_gray':
-            start_c = '\033[97m'
-        elif color == 'black':
-            start_c = '\033[98m'
-        else:
-            print('color not right')
-            sys.exit()
-
-        self.__stream.write((start_c + str(message) + end_c) if self.__color_active else (message + "\n"))
-        '''
-        self.__stream.write(termcolor.colored(message + "\n", color, highlights, attrs=attrs) if self.__color_active else (message + "\n"))
+    def __print_color(self, message, color=LoggerColor.GRAY, highlights=LoggerHighlights.NONE, attrs=LoggerAttributes.NONE):
+        self.__stream.write(_get_colored_string(message, color, highlights, attrs) if self.__color_active else (message + "\n"))
         self.__stream.flush()
 
-    def print_other(self, message, prefix="", color=LoggerColor.GREY):
+    def print_other(self, message, prefix="", color=LoggerColor.GRAY):
         self.__print_color(str(prefix) + str(message), color=color)
 
     def print_message(self, message):

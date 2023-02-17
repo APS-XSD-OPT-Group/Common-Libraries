@@ -46,11 +46,10 @@
 # ----------------------------------------------------------------------- #
 
 
-from PyQt5.QtWidgets import QWidget, QHBoxLayout
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget
 from PyQt5.Qt import QTextCursor
 
-from aps.common.logger import LogStream, LoggerColor
+from aps.common.logger import LogStream, LoggerColor, LoggerHighlights, LoggerAttributes, _strip_colored_string
 from aps.common.plot import gui
 
 class LogStreamWidget(LogStream):
@@ -68,26 +67,22 @@ class LogStreamWidget(LogStream):
             self.set_widget_size(width, height)
 
         def write(self, text : str):
-            if "ERROR" in text:
-                tokens = text.split(sep="ERROR: ")
-                color = "#ff0000"
-                text = tokens[1][:-5]
-            elif "WARNING" in text:
-                tokens = text.split(sep="WARNING: ")
-                color = "#ff00ff"
-                text = tokens[1][:-5]
-            elif "MESSAGE" in text:
-                tokens = text.split(sep="MESSAGE: ")
-                color = "#0000ff" #"#00ffff"
-                text = tokens[1][:-5]
+            text, color, highlight, attrs = _strip_colored_string(text)
+
+            if color is None: color = "#000000"
             else:
-                color = "#000000"
+                if   color == LoggerColor.GRAY:    color = "#808080"
+                elif color == LoggerColor.RED:     color = "#ff0000"
+                elif color == LoggerColor.GREEN:   color = "#008000"
+                elif color == LoggerColor.YELLOW:  color = "#ffff00"
+                elif color == LoggerColor.BLUE:    color = "#0000ff"
+                elif color == LoggerColor.MAGENTA: color = "#ff00ff"
+                elif color == LoggerColor.CYAN:    color = "#00ffff"
+                elif color == LoggerColor.WHITE:   color = "#ffffff"
 
             cursor = self.__text_area.textCursor()
             cursor.movePosition(QTextCursor.End)
-            cursor.insertHtml("<span style=\"color:" + color + ";\" >"
-                              + text +
-                              "</span>")
+            cursor.insertHtml("<span style=\"color:" + color + ";\" >" + text + "</span>")
             cursor.insertText("\n")
             self.__text_area.setTextCursor(cursor)
             self.__text_area.ensureCursorVisible()
