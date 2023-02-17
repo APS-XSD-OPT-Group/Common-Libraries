@@ -263,7 +263,7 @@ class __FullLogger(LoggerFacade):
         self.__stream.flush()
 
     def __print_color(self, message, color=LoggerColor.GRAY, highlights=LoggerHighlights.NONE, attrs=LoggerAttributes.NONE):
-        self.__stream.write(_get_colored_string(message, color, highlights, attrs) if self.__color_active else (message + "\n"))
+        self.__stream.write((_get_colored_string(message, color, highlights, attrs) + ("\n" if self.__stream == DEFAULT_STREAM else "")) if self.__color_active else (message + "\n"))
         self.__stream.flush()
 
     def print_other(self, message, prefix="", color=LoggerColor.GRAY):

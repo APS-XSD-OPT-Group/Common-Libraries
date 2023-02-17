@@ -89,7 +89,10 @@ class GenericQTScript():
     def _run_script(self, **args): raise NotImplementedError()
 
     def _parse_sys_arguments(self, sys_argv):
-        args = {"SCRIPT_LOGGER_MODE" : LoggerMode.FULL}
+        args = {"LOGGER_MODE" : LoggerMode.FULL,
+                "PLOTTER_MODE" : PlotterMode.FULL,
+                "INI_MODE" : IniMode.LOCAL_FILE,
+                "SCRIPT_LOGGER_MODE" : LoggerMode.FULL}
         if not sys_argv is None and len(sys_argv) > 2:
             if sys_argv[2] == "--h": self.show_help()
             else:
@@ -104,7 +107,11 @@ class GenericQTScript():
 
     def _parse_additional_sys_argument(self, sys_argument, args): pass
 
-    def _initialize_utils(self, LOGGER_MODE=LoggerMode.FULL, PLOTTER_MODE=PlotterMode.FULL, INI_MODE=IniMode.LOCAL_FILE, **args):
+    def _initialize_utils(self, **args):
+        LOGGER_MODE  = LoggerMode.FULL if args.get("LOGGER_MODE") is None else args.get("LOGGER_MODE")
+        PLOTTER_MODE = PlotterMode.FULL if args.get("PLOTTER_MODE") is None else args.get("PLOTTER_MODE")
+        INI_MODE     = IniMode.LOCAL_FILE if args.get("INI_MODE") is None else args.get("INI_MODE")
+
         print("Logger Mode : " + LoggerMode.get_logger_mode(LOGGER_MODE))
         print("Plotter Mode: " + PlotterMode.get_plotter_mode(PLOTTER_MODE))
 
