@@ -52,7 +52,7 @@ except AttributeError:
 
 NAME = 'aps_common_libraries'
 
-VERSION = '0.0.6'
+VERSION = '1.0.0'
 ISRELEASED = False
 
 DESCRIPTION = 'APS Common Libraries'
@@ -85,10 +85,15 @@ CLASSIFIERS = [
 
 INSTALL_REQUIRES = (
     'setuptools',
-    'numpy',
-    'scipy',
-    'matplotlib',
+    'numpy<1.23,>=1.21',
+    'scipy<=1.9.1,>=1.7.3',
+    'matplotlib<=3.5.3,>=3.3.2',
+    'PyQt5==5.15.2',
     'scikit-image',
+    'opencv-python',
+    'h5py',
+    'numba',
+    'torch<=1.13.0',
     'pyepics',
 )
 
