@@ -64,6 +64,8 @@ class DefaultContextWidget(AbstractContextWidget):
     def __init__(self, container_widget):
         super(DefaultContextWidget, self).__init__(container_widget)
 
+
+
 class DefaultMainWindow(QMainWindow, AbstractContextWidget):
     def __init__(self, title):
         super(DefaultMainWindow, self).__init__(container_widget=QWidget())
@@ -78,9 +80,7 @@ class DefaultMainWindow(QMainWindow, AbstractContextWidget):
         new_geometry.setHeight(actual_geometry.height())
         new_geometry.setTop(screen_geometry.height()*0.05)
         new_geometry.setLeft(screen_geometry.width()*0.05)
-
         self.setGeometry(new_geometry)
-
         self.setStyleSheet(stylesheet_string)
 
 class PlottingProperties:
