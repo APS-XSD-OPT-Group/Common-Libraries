@@ -69,7 +69,7 @@ class GenericRegistry(object):
         application_name = self.__get_application_name(application_name)
 
         if application_name in self.__registry.keys(): self.__registry[self.__get_application_name(application_name)] = None
-        else: raise ValueError(self.__registry_name + " Instance not existing")
+        else: pass #raise ValueError(self.__registry_name + " Instance not existing")
 
     def get_instance(self, application_name=None):
         application_name = self.__get_application_name(application_name)

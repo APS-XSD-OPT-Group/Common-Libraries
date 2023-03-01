@@ -51,57 +51,84 @@
 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QTextEdit, QFileDialog
 
+def _set_size(dialog, width, height):
+    stylesheet_string = "QLabel{"
+    if not width is None:  stylesheet_string += "min-width: " + str(width) + "px;"
+    if not height is None: stylesheet_string += "min-height: " + str(height) + "px;"
+    stylesheet_string += "}"
+    if not (width is None and height is None): dialog.setStyleSheet(stylesheet_string)
+
+class MessageDialog(QMessageBox):
+    def __init__(self, parent, message, title=None, type="information", width=None, height=None):
+        super(MessageDialog, self).__init__(parent)
+
+        self.setStandardButtons(QMessageBox.Ok)
+        if type == "information": self.setIcon(QMessageBox.Information)
+        elif type == "warning":   self.setIcon(QMessageBox.Warning)
+        elif type == "critical":  self.setIcon(QMessageBox.Critical)
+        self.setText(message)
+        if title is None: self.setWindowTitle(str(type[0]).upper() + type[1:])
+        else:             self.setWindowTitle(title)
+        _set_size(self, width, height)
+
+    @classmethod
+    def message(cls, parent=None, message="Message", title=None, type="information", width=None, height=None):
+        MessageDialog(parent, message, title, type, width, height).exec_()
+
 class ConfirmDialog(QMessageBox):
-    def __init__(self, parent, message, title):
+    def __init__(self, parent, message, title, width=None, height=None):
         super(ConfirmDialog, self).__init__(parent)
 
         self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         self.setIcon(QMessageBox.Question)
         self.setText(message)
         self.setWindowTitle(title)
+        _set_size(self, width, height)
 
     @classmethod
-    def confirmed(cls, parent=None, message="Confirm Action?", title="Confirm Action"):
-        return ConfirmDialog(parent, message, title).exec_() == QMessageBox.Ok
+    def confirmed(cls, parent=None, message="Confirm Action?", title="Confirm Action", width=None, height=None):
+        return ConfirmDialog(parent, message, title, width, height).exec_() == QMessageBox.Ok
 
 class OptionDialog(QMessageBox):
-    def __init__(self, parent, message, title, options, default):
+    def __init__(self, parent, message, title, options, default, width=None, height=None):
         super(OptionDialog, self).__init__(parent)
 
         self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         self.setIcon(QMessageBox.Question)
         self.setText(message)
         self.setWindowTitle(title)
+        _set_size(self, width, height)
 
         self.selection = default
 
-        comboBox( widgetBox(self, "", height=40), self, label="Select Option", items=options, callback=self.set_selection, orientation="horizontal")
+        comboBox(widgetBox(self, "", height=40), self, label="Select Option", items=options, callback=self.set_selection, orientation="horizontal")
 
     def set_selection(self, index):
         self.selection = index
 
     @classmethod
-    def get_option(cls, parent=None, message="Select Option", title="Select Option", option=["No", "Yes"], default=0):
-        dlg = OptionDialog(parent, message, title, option, default)
+    def get_option(cls, parent=None, message="Select Option", title="Select Option", option=["No", "Yes"], default=0, width=None, height=None):
+        dlg = OptionDialog(parent, message, title, option, default, width, height)
         if dlg.exec_() == QMessageBox.Ok: return dlg.selection
         else: return None
 
 class ValueDialog(QMessageBox):
-    def __init__(self, parent, message, title, default):
+    def __init__(self, parent, message, title, default, width=None, height=None):
         super(ValueDialog, self).__init__(parent)
 
         self.setStandardButtons(QMessageBox.Ok)
         self.setIcon(QMessageBox.Question)
         self.setText(message)
         self.setWindowTitle(title)
+        _set_size(self, width, height)
 
         self.value = default
 
         lineEdit(widgetBox(self, "", height=40), self, "value", "", orientation="horizontal")
 
     @classmethod
-    def get_value(cls, parent=None, message="Input Value", title="Input Option", default=0):
-        dlg = ValueDialog(parent, message, title, default)
+    def get_value(cls, parent=None, message="Input Value", title="Input Option", default=0, width=None, height=None):
+        dlg = ValueDialog(parent, message, title, default, width, height)
         if dlg.exec_() == QMessageBox.Ok: return dlg.value
         else: return None
 
