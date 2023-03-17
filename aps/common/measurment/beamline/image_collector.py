@@ -44,6 +44,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE         #
 # POSSIBILITY OF SUCH DAMAGE.                                             #
 # ----------------------------------------------------------------------- #
+import os
 import time
 from epics import PV
 import pickle
@@ -61,7 +62,6 @@ ini_file = get_registered_ini_instance(APPLICATION_NAME)
 
 WAIT_TIME         = ini_file.get_float_from_ini(section="Execution", key="Wait-Time",     default=0.1)
 EXPOSURE_TIME     = ini_file.get_float_from_ini(section="Execution", key="Exposure-Time", default=0.3)
-FILE_NAME_PREFIX  = "sample_" + str(int(EXPOSURE_TIME*1000)) + "ms_"
 
 ini_file.set_value_at_ini(section="Execution",   key="Wait-Time",     value=WAIT_TIME)
 ini_file.set_value_at_ini(section="Execution",   key="Exposure-Time", value=EXPOSURE_TIME)
@@ -69,11 +69,14 @@ ini_file.push()
 
 IMAGE_COLLECTOR_STATUS_FILE = "image_collector_status.pkl"
 
+def get_default_file_name_prefix(exposure_time=EXPOSURE_TIME):
+    return "sample_" + str(int(exposure_time * 1000)) + "ms_"
+
 class ImageCollector():
 
-    def __init__(self, measurement_directory, exposure_time=EXPOSURE_TIME, detector_delay=None, mocking_mode=False):
-        self.__exposure_time         = exposure_time
+    def __init__(self, measurement_directory, file_name_prefix=None, detector_delay=None, mocking_mode=False):
         self.__measurement_directory = measurement_directory
+        self.__file_name_prefix      = get_default_file_name_prefix() if file_name_prefix is None else file_name_prefix
         self.__mocking_mode          = mocking_mode
 
         if not self.__mocking_mode:
@@ -141,7 +144,6 @@ class ImageCollector():
     def collect_single_shot_image(self, index=1):
         if not self.__mocking_mode:
             self.__initialize_current_image(index)
-
             self.__detector_acquire() # 2 waiting time + exposure time
         else:
             time.sleep(self.get_total_acquisition_time())
@@ -183,7 +185,7 @@ class ImageCollector():
         self.__PV_dict["andor_tiff_filepath"].put(self.__measurement_directory)
         self.__PV_dict["andor_tiff_autosave"].put("Yes")
         self.__PV_dict["andor_tiff_autoincrement"].put("No")
-        self.__PV_dict["andor_tiff_filename"].put('sample_' + str(int(self.__exposure_time * 1000)) + 'ms')
+        self.__PV_dict["andor_tiff_filename"].put(self.__file_name_prefix)
         if index > 0: self.__PV_dict["andor_tiff_filenumber"].put(index)
 
     def __detector_delay(self):
