@@ -52,7 +52,7 @@ import time
 import pathlib
 import numpy
 
-from aps.common.measurment.beamline.image_collector import FILE_NAME_PREFIX
+from aps.common.measurment.beamline.image_collector import get_default_file_name_prefix
 from aps.common.measurment.beamline.wf import SCRIPT_DIRECTORY
 
 PIXEL_SIZE           = 0.65e-6
@@ -61,7 +61,7 @@ IMAGE_SIZE_PIXEL_HxV = [2160, 2560]
 class ImageProcessor():
     def __init__(self,
                  data_collection_directory,
-                 file_name_prefix=FILE_NAME_PREFIX,
+                 file_name_prefix=get_default_file_name_prefix(),
                  simulated_mask_directory=None,
                  energy=20000.0,
                  source_distance=[1.5, 1.5],
