@@ -70,11 +70,11 @@ ini_file.push()
 IMAGE_COLLECTOR_STATUS_FILE = "image_collector_status.pkl"
 
 def get_default_file_name_prefix(exposure_time=EXPOSURE_TIME):
-    return "sample_" + str(int(exposure_time * 1000)) + "ms_"
+    return "sample_" + str(int(exposure_time * 1000)) + "ms"
 
 class ImageCollector():
-
-    def __init__(self, measurement_directory, file_name_prefix=None, detector_delay=None, mocking_mode=False):
+    def __init__(self, measurement_directory, exposure_time=EXPOSURE_TIME, file_name_prefix=None, detector_delay=None, mocking_mode=False):
+        self.__exposure_time         = exposure_time
         self.__measurement_directory = measurement_directory
         self.__file_name_prefix      = get_default_file_name_prefix() if file_name_prefix is None else file_name_prefix
         self.__mocking_mode          = mocking_mode

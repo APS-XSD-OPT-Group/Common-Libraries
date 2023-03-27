@@ -168,7 +168,7 @@ class ProcessingThread(threading.Thread):
         waiting_cycles     = 0
 
         while waiting_cycles < max_waiting_cycles:
-            images_list   = glob.glob(os.path.join(self.__data_collection_directory, self.__file_name_prefix + '*.tif'), recursive=False)
+            images_list   = glob.glob(os.path.join(self.__data_collection_directory, self.__file_name_prefix + '_*.tif'), recursive=False)
             if len(images_list) == 0:
                 waiting_cycles += 1
                 print('Thread #' + str(self.__thread_id) + ' waiting for 1s for new data....')
@@ -199,7 +199,7 @@ class ProcessingThread(threading.Thread):
 def _get_image_data(data_collection_directory, file_name_prefix, mask_directory, energy, source_distance, image_transfer_matrix, image_index, verbose):
     dark = None
     flat = None
-    image_path       = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
+    image_path       = os.path.join(data_collection_directory, file_name_prefix + "_%05i.tif" % image_index)
     mask_directory   = os.path.join(data_collection_directory, "simulated_mask") if mask_directory is None else mask_directory
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
@@ -275,7 +275,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
 def _process_image(data_collection_directory, file_name_prefix, mask_directory, energy, source_distance, image_transfer_matrix, image_index, verbose):
     dark = None
     flat = None
-    image_path       = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
+    image_path       = os.path.join(data_collection_directory, file_name_prefix + "_%05i.tif" % image_index)
     mask_directory   = os.path.join(data_collection_directory, "simulated_mask") if mask_directory is None else mask_directory
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
@@ -341,12 +341,12 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
                                                                       n_group, verbose, simple_analysis, crop_boundary, params)
     os.system(command)
 
-    print("Image " + file_name_prefix + "%05i.tif" % image_index + " processed")
+    print("Image " + file_name_prefix + "_%05i.tif" % image_index + " processed")
 
 def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_directory, energy, source_distance, image_index=1, verbose=False):
     dark = None
     flat = None
-    image_path      = os.path.join(data_collection_directory, file_name_prefix + "%05i.tif" % image_index)
+    image_path      = os.path.join(data_collection_directory, file_name_prefix + "_%05i.tif" % image_index)
     mask_directory  = os.path.join(data_collection_directory, "simulated_mask") if mask_directory is None else mask_directory
     is_new_mask     = True
 
