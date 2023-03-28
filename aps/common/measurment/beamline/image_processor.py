@@ -55,8 +55,19 @@ import numpy
 from aps.common.measurment.beamline.image_collector import get_default_file_name_prefix
 from aps.common.measurment.beamline.wf import SCRIPT_DIRECTORY
 
-PIXEL_SIZE           = 0.65e-6
-IMAGE_SIZE_PIXEL_HxV = [2160, 2560]
+PIXEL_SIZE           = 1.213e-6 #0.65e-6
+IMAGE_SIZE_PIXEL_HxV = [2560, 2160] #[2160, 2560]
+
+PATTERN_SIZE = 10e-6  # 4.942e-6  # 4.952e-6
+PATTERN_THICKNESS = 1.5e-6
+PATTERN_T = 0.613
+D_PROP = 300e-3  # 500e-3
+#SOURCE_H = 25e-6  # 277e-6 / (60 / 1.5)
+#SOURCE_V = 10e-6 / (60 / 0.5)  # 10e-6 / (60 / 2)
+SOURCE_H = 10e-6 / (60 / 0.5)
+SOURCE_V = 25e-6
+SHOW_ALIGNFIGURE = False
+RAN_MASK = 'RanMask10umB0.npy' #'RanMask5umB0.npy'
 
 class ImageProcessor():
     def __init__(self,
@@ -204,7 +215,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
     # pattern simulation parameters
-    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', 'RanMask5umB0.npy')
+    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', RAN_MASK)
     propagated_pattern    = os.path.join(mask_directory, 'propagated_pattern.npz')
     propagated_patternDet = os.path.join(mask_directory, 'propagated_patternDet.npz')
 
@@ -213,15 +224,15 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
     find_transfer_matrix = False
     p_x                  = PIXEL_SIZE
     det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
-    pattern_size         = 4.942e-6  # 4.952e-6
-    pattern_thickness    = 1.5e-6
-    pattern_T            = 0.613
-    d_prop               = 500e-3
-    source_h             = 277e-6 / (60 / 1.5)
-    source_v             = 10e-6 / (60 / 2)
+    pattern_size         = PATTERN_SIZE
+    pattern_thickness    = PATTERN_THICKNESS
+    pattern_T            = PATTERN_T
+    d_prop               = D_PROP
+    source_h             = SOURCE_H
+    source_v             = SOURCE_V
     d_source_h           = source_distance[0]
     d_source_v           = source_distance[1]
-    show_alignFigure     = False
+    show_alignFigure     = SHOW_ALIGNFIGURE
 
     # reconstruction parameter initialization
     mode            = 'centralLine'  # area or centralLine
@@ -280,7 +291,7 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
     result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
     # pattern simulation parameters
-    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask' , 'RanMask5umB0.npy')
+    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask' , RAN_MASK)
     propagated_pattern    = os.path.join(mask_directory, 'propagated_pattern.npz')
     propagated_patternDet = os.path.join(mask_directory, 'propagated_patternDet.npz')
 
@@ -289,15 +300,15 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
     find_transfer_matrix = False
     p_x                  = PIXEL_SIZE
     det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
-    pattern_size         = 4.942e-6  # 4.952e-6
-    pattern_thickness    = 1.5e-6
-    pattern_T            = 0.613
-    d_prop               = 500e-3
-    source_h             = 277e-6 / (60 / 1.5)
-    source_v             = 10e-6 / (60 / 2)
+    pattern_size         = PATTERN_SIZE
+    pattern_thickness    = PATTERN_THICKNESS
+    pattern_T            = PATTERN_T
+    d_prop               = D_PROP
+    source_h             = SOURCE_H
+    source_v             = SOURCE_V
     d_source_h           = source_distance[0]
     d_source_v           = source_distance[1]
-    show_alignFigure     = False
+    show_alignFigure     = SHOW_ALIGNFIGURE
 
     # reconstruction parameter initialization
     mode            = 'centralLine'  # area or centralLine
@@ -359,7 +370,7 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
 
         # pattern simulation parameters
-        pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', 'RanMask5umB0.npy')
+        pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', RAN_MASK)
         propagated_pattern    = None
         propagated_patternDet = None
 
@@ -367,15 +378,15 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         find_transfer_matrix = True
         p_x                  = PIXEL_SIZE
         det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
-        pattern_size         = 4.942e-6  # 4.952e-6
-        pattern_thickness    = 1.5e-6
-        pattern_T            = 0.613
-        d_prop               = 500e-3
-        source_h             = 277e-6 / (60 / 1.5)
-        source_v             = 10e-6 / (60 / 2)
+        pattern_size         = PATTERN_SIZE
+        pattern_thickness    = PATTERN_THICKNESS
+        pattern_T            = PATTERN_T
+        d_prop               = D_PROP
+        source_h             = SOURCE_H
+        source_v             = SOURCE_V
         d_source_h           = source_distance[0]
         d_source_v           = source_distance[1]
-        show_alignFigure     = False
+        show_alignFigure     = SHOW_ALIGNFIGURE
 
         # reconstruction parameter initialization
         mode            = 'centralLine'  # area or centralLine
