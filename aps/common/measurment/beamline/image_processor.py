@@ -65,39 +65,77 @@ register_ini_instance(IniMode.LOCAL_FILE,
                       verbose=False)
 ini_file = get_registered_ini_instance(APPLICATION_NAME)
 
-PYTHON                = ini_file.get_string_from_ini( section="Python",   key="Python-Executable",             default="python")
-PIXEL_SIZE            = ini_file.get_float_from_ini(  section="Detector", key="Pixel-Size",                    default=0.65e-6)
-IMAGE_SIZE_PIXEL_HxV  = ini_file.get_list_from_ini(   section="Detector", key="Image-Size",                    default=[2160, 2560], type=int)
-PATTERN_SIZE          = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Size",                  default=4.942e-6)
-PATTERN_THICKNESS     = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Thickness",             default=1.5e-6)
-PATTERN_T             = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Transmission",          default=0.613)
-RAN_MASK              = ini_file.get_string_from_ini( section="Mask",     key="Pattern-Image",                 default='RanMask5umB0.npy')
-D_PROP                = ini_file.get_float_from_ini(  section="Mask",     key="Propagation-Distance",          default=500e-3)
-D_SOURCE_RECAL        = ini_file.get_boolean_from_ini(section="Mask",     key="Source-Distance-Recalculation", default=True)
-MODE                  = ini_file.get_string_from_ini( section="Mask",     key="Mode",                          default='centralLine')
-SOURCE_V              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-V",                 default=6.925e-6)
-SOURCE_H              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-H",                 default=0.333e-6)
-SOURCE_DISTANCE_V     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-V",             default=1.5)
-SOURCE_DISTANCE_H     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-H",             default=1.5)
-ESTIMATION_METHOD     = ini_file.get_string_from_ini( section="Output",   key="Estimation-Method",             default='simple_speckle')
-IMAGE_TRANSFER_MATRIX = ini_file.get_list_from_ini(   section="Output",   key="Image-Transfer-Matrix",         default=[0, 1, 0], type=int)
-SHOW_ALIGN_FIGURE     = ini_file.get_boolean_from_ini(section="Output",   key="Show-Align-Figure",             default=False)
+PYTHON                = ini_file.get_string_from_ini( section="Python",   key="Python-Executable", default="python")
+
+PIXEL_SIZE            = ini_file.get_float_from_ini(  section="Detector", key="Pixel-Size", default=0.65e-6)
+IMAGE_SIZE_PIXEL_HxV  = ini_file.get_list_from_ini(   section="Detector", key="Image-Size", default=[2160, 2560], type=int)
+
+PATTERN_SIZE          = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Size",         default=4.942e-6)
+PATTERN_THICKNESS     = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Thickness",    default=1.5e-6)
+PATTERN_T             = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Transmission", default=0.613)
+RAN_MASK              = ini_file.get_string_from_ini( section="Mask",     key="Pattern-Image",        default='RanMask5umB0.npy')
+D_PROP                = ini_file.get_float_from_ini(  section="Mask",     key="Propagation-Distance", default=500e-3)
+
+SOURCE_V              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-V",     default=6.925e-6)
+SOURCE_H              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-H",     default=0.333e-6)
+SOURCE_DISTANCE_V     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-V", default=1.5)
+SOURCE_DISTANCE_H     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-H", default=1.5)
+
+D_SOURCE_RECAL        = ini_file.get_boolean_from_ini(section="Execution",     key="Source-Distance-Recalculation", default=True)
+CROP                  = ini_file.get_list_from_ini(   section="Execution",     key="Crop",                          default=[-1], type=int)
+ESTIMATION_METHOD     = ini_file.get_string_from_ini( section="Execution",     key="Estimation-Method",             default='simple_speckle')
+
+MODE                  = ini_file.get_string_from_ini( section="Reconstruction",   key="Mode",          default='centralLine')
+LINE_WIDTH            = ini_file.get_int_from_ini(    section="Reconstruction",   key="Line-Width",    default=10)
+DOWN_SAMPLING         = ini_file.get_float_from_ini(  section="Reconstruction",   key="Down-Sampling", default=0.5)
+METHOD                = ini_file.get_string_from_ini( section="Reconstruction",   key="Method",        default='WXST')
+USE_GPU               = ini_file.get_boolean_from_ini(section="Reconstruction",   key="Use-Gpu",       default=True)
+USE_WAVELET           = ini_file.get_boolean_from_ini(section="Reconstruction",   key="Use-Wavelet",   default=True)
+WAVELET_CUT           = ini_file.get_int_from_ini(    section="Reconstruction",   key="Wavelet-Cut",   default=1)
+PYRAMID_LEVEL         = ini_file.get_int_from_ini(    section="Reconstruction",   key="Pyramid-Level", default=1)
+TEMPLATE_SIZE         = ini_file.get_int_from_ini(    section="Reconstruction",   key="Template-Size", default=21)
+WINDOW_SEARCH         = ini_file.get_int_from_ini(    section="Reconstruction",   key="Window-Search", default=20)
+CROP_BOUNDARY         = ini_file.get_int_from_ini(    section="Reconstruction",   key="Crop-Boundary", default=-1)
+N_CORES               = ini_file.get_int_from_ini(    section="Reconstruction",   key="N-Cores",       default=16)
+N_GROUP               = ini_file.get_int_from_ini(    section="Reconstruction",   key="N-Group",       default=1)
+
+IMAGE_TRANSFER_MATRIX = ini_file.get_list_from_ini(   section="Output",   key="Image-Transfer-Matrix", default=[0, 1, 0], type=int)
+SHOW_ALIGN_FIGURE     = ini_file.get_boolean_from_ini(section="Output",   key="Show-Align-Figure",     default=False)
 
 ini_file.set_value_at_ini(section="Python",   key="Python-Executable",             value=PYTHON)
+
 ini_file.set_value_at_ini(section="Detector", key="Pixel-Size",                    value=PIXEL_SIZE)
 ini_file.set_list_at_ini( section="Detector", key="Image-Size",                    values_list=IMAGE_SIZE_PIXEL_HxV)
+
 ini_file.set_value_at_ini(section="Mask",     key="Pattern-Size",                  value=PATTERN_SIZE)
 ini_file.set_value_at_ini(section="Mask",     key="Pattern-Thickness",             value=PATTERN_THICKNESS)
 ini_file.set_value_at_ini(section="Mask",     key="Pattern-Transmission",          value=PATTERN_T)
 ini_file.set_value_at_ini(section="Mask",     key="Pattern-Image",                 value=RAN_MASK)
 ini_file.set_value_at_ini(section="Mask",     key="Propagation-Distance",          value=D_PROP)
-ini_file.set_value_at_ini(section="Mask",     key="Source-Distance-Recalculation", value=D_SOURCE_RECAL)
-ini_file.set_value_at_ini(section="Mask",     key="Mode",                          value=MODE)
+
 ini_file.set_value_at_ini(section="Source",   key="Source-Size-V",                 value=SOURCE_V)
 ini_file.set_value_at_ini(section="Source",   key="Source-Size-H",                 value=SOURCE_H)
 ini_file.set_value_at_ini(section="Source",   key="Source-Distance-V",             value=SOURCE_DISTANCE_V)
 ini_file.set_value_at_ini(section="Source",   key="Source-Distance-H",             value=SOURCE_DISTANCE_H)
-ini_file.set_value_at_ini(section="Output",   key="Estimation-Method",             value=ESTIMATION_METHOD)
+
+ini_file.set_value_at_ini(section="Execution",     key="Source-Distance-Recalculation", value=D_SOURCE_RECAL)
+ini_file.set_list_at_ini( section="Execution",     key="Crop",                          values_list=CROP)
+ini_file.set_value_at_ini(section="Execution",     key="Estimation-Method",             value=ESTIMATION_METHOD)
+
+ini_file.set_value_at_ini(section="Reconstruction",   key="Mode",          value=MODE)
+ini_file.set_value_at_ini(section="Reconstruction",   key="Line-Width",    value=LINE_WIDTH   )
+ini_file.set_value_at_ini(section="Reconstruction",   key="Down-Sampling", value=DOWN_SAMPLING)
+ini_file.set_value_at_ini(section="Reconstruction",   key="Method",        value=METHOD       )
+ini_file.set_value_at_ini(section="Reconstruction",   key="Use-Gpu",       value=USE_GPU      )
+ini_file.set_value_at_ini(section="Reconstruction",   key="Use-Wavelet",   value=USE_WAVELET  )
+ini_file.set_value_at_ini(section="Reconstruction",   key="Wavelet-Cut",   value=WAVELET_CUT  )
+ini_file.set_value_at_ini(section="Reconstruction",   key="Pyramid-Level", value=PYRAMID_LEVEL)
+ini_file.set_value_at_ini(section="Reconstruction",   key="Template-Size", value=TEMPLATE_SIZE)
+ini_file.set_value_at_ini(section="Reconstruction",   key="Window-Search", value=WINDOW_SEARCH)
+ini_file.set_value_at_ini(section="Reconstruction",   key="Crop-Boundary", value=CROP_BOUNDARY)
+ini_file.set_value_at_ini(section="Reconstruction",   key="N-Cores",       value=N_CORES      )
+ini_file.set_value_at_ini(section="Reconstruction",   key="N-Group",       value=N_GROUP      )
+
 ini_file.set_list_at_ini( section="Output",   key="Image-Transfer-Matrix",         values_list=IMAGE_TRANSFER_MATRIX)
 ini_file.set_value_at_ini(section="Output",   key="Show-Align-Figure",             value=SHOW_ALIGN_FIGURE)
 
@@ -249,7 +287,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
     propagated_pattern    = os.path.join(mask_directory, 'propagated_pattern.npz')
     propagated_patternDet = os.path.join(mask_directory, 'propagated_patternDet.npz')
 
-    crop                 = ' '.join([str(k) for k in [-1]])
+    crop                 = ' '.join([str(k) for k in CROP])
     img_transfer_matrix  = ' '.join([str(k) for k in image_transfer_matrix])
     find_transfer_matrix = False
     p_x                  = PIXEL_SIZE
@@ -266,18 +304,18 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
 
     # reconstruction parameter initialization
     mode            = MODE  # area or centralLine
-    lineWidth       = 10
-    down_sampling   = 0.5
-    method          = 'WXST'
-    use_gpu         = True
-    use_wavelet     = True
-    wavelet_cut     = 1
-    pyramid_level   = 1
-    template_size   = 21
-    window_search   = 20
-    crop_boundary   = -1
-    n_cores         = 16
-    n_group         = 1
+    lineWidth       = LINE_WIDTH
+    down_sampling   = DOWN_SAMPLING
+    method          = METHOD
+    use_gpu         = USE_GPU
+    use_wavelet     = USE_WAVELET
+    wavelet_cut     = WAVELET_CUT
+    pyramid_level   = PYRAMID_LEVEL
+    template_size   = TEMPLATE_SIZE
+    window_search   = WINDOW_SEARCH
+    crop_boundary   = CROP_BOUNDARY
+    n_cores         = N_CORES
+    n_group         = N_GROUP
     verbose         = 1 if verbose else 0 # NO
     simple_analysis = 1
 
@@ -327,7 +365,7 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
     propagated_pattern    = os.path.join(mask_directory, 'propagated_pattern.npz')
     propagated_patternDet = os.path.join(mask_directory, 'propagated_patternDet.npz')
 
-    crop                 = ' '.join([str(k) for k in [-1]])
+    crop                 = ' '.join([str(k) for k in CROP])
     img_transfer_matrix  = ' '.join([str(k) for k in image_transfer_matrix])
     find_transfer_matrix = False
     p_x                  = PIXEL_SIZE
@@ -344,18 +382,18 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
 
     # reconstruction parameter initialization
     mode            = MODE  # area or centralLine
-    lineWidth       = 10
-    down_sampling   = 0.5
-    method          = 'WXST'
-    use_gpu         = True
-    use_wavelet     = True
-    wavelet_cut     = 1
-    pyramid_level   = 1
-    template_size   = 21
-    window_search   = 20
-    crop_boundary   = -1
-    n_cores         = 16
-    n_group         = 1
+    lineWidth       = LINE_WIDTH
+    down_sampling   = DOWN_SAMPLING
+    method          = METHOD
+    use_gpu         = USE_GPU
+    use_wavelet     = USE_WAVELET
+    wavelet_cut     = WAVELET_CUT
+    pyramid_level   = PYRAMID_LEVEL
+    template_size   = TEMPLATE_SIZE
+    window_search   = WINDOW_SEARCH
+    crop_boundary   = CROP_BOUNDARY
+    n_cores         = N_CORES
+    n_group         = N_GROUP
     verbose         = 1 if verbose else 0 # NO
     simple_analysis = 0 # NO
 
@@ -408,7 +446,7 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         propagated_patternDet = None
         estimation_method     = ESTIMATION_METHOD
 
-        crop                 = ' '.join([str(k) for k in [-1]])
+        crop                 = ' '.join([str(k) for k in CROP])
         find_transfer_matrix = True
         p_x                  = PIXEL_SIZE
         det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
@@ -423,19 +461,19 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         show_align_figure    = SHOW_ALIGN_FIGURE
 
         # reconstruction parameter initialization
-        mode            = MODE  # area or centralLine
-        lineWidth       = 10
-        down_sampling   = 0.5
-        method          = 'WXST'
-        use_gpu         = True
-        use_wavelet     = True
-        wavelet_cut     = 1
-        pyramid_level   = 1
-        template_size   = 21
-        window_search   = 20
-        crop_boundary   = -1
-        n_cores         = 16
-        n_group         = 1
+        mode = MODE  # area or centralLine
+        lineWidth = LINE_WIDTH
+        down_sampling = DOWN_SAMPLING
+        method = METHOD
+        use_gpu = USE_GPU
+        use_wavelet = USE_WAVELET
+        wavelet_cut = WAVELET_CUT
+        pyramid_level = PYRAMID_LEVEL
+        template_size = TEMPLATE_SIZE
+        window_search = WINDOW_SEARCH
+        crop_boundary = CROP_BOUNDARY
+        n_cores = N_CORES
+        n_group = N_GROUP
         verbose         = 1 if verbose else 0 # NO
         simple_analysis = 0 # NO
 
