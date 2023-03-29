@@ -65,40 +65,41 @@ register_ini_instance(IniMode.LOCAL_FILE,
                       verbose=False)
 ini_file = get_registered_ini_instance(APPLICATION_NAME)
 
-PYTHON                = ini_file.get_string_from_ini( section="Python",   key="Python-Executable",     default="python")
-PIXEL_SIZE            = ini_file.get_float_from_ini(  section="Detector", key="Pixel-Size",            default=0.65e-6)
-IMAGE_SIZE_PIXEL_HxV  = ini_file.get_list_from_ini(   section="Detector", key="Image-Size",            default=[2160, 2560], type=int)
-PATTERN_SIZE          = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Size",          default=4.942e-6)
-PATTERN_THICKNESS     = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Thickness",     default=1.5e-6)
-PATTERN_T             = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Transmission",  default=0.613)
-RAN_MASK              = ini_file.get_string_from_ini( section="Mask",     key="Pattern-Image",         default='RanMask5umB0.npy')
-D_PROP                = ini_file.get_float_from_ini(  section="Mask",     key="Propagation-Distance",  default=500e-3)
-MODE                  = ini_file.get_string_from_ini( section="Mask",     key="Mode",                  default='centralLine')
+PYTHON                = ini_file.get_string_from_ini( section="Python",   key="Python-Executable",             default="python")
+PIXEL_SIZE            = ini_file.get_float_from_ini(  section="Detector", key="Pixel-Size",                    default=0.65e-6)
+IMAGE_SIZE_PIXEL_HxV  = ini_file.get_list_from_ini(   section="Detector", key="Image-Size",                    default=[2160, 2560], type=int)
+PATTERN_SIZE          = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Size",                  default=4.942e-6)
+PATTERN_THICKNESS     = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Thickness",             default=1.5e-6)
+PATTERN_T             = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Transmission",          default=0.613)
+RAN_MASK              = ini_file.get_string_from_ini( section="Mask",     key="Pattern-Image",                 default='RanMask5umB0.npy')
+D_PROP                = ini_file.get_float_from_ini(  section="Mask",     key="Propagation-Distance",          default=500e-3)
+D_SOURCE_RECAL        = ini_file.get_boolean_from_ini(section="Mask",     key="Source-Distance-Recalculation", default=True)
+MODE                  = ini_file.get_string_from_ini( section="Mask",     key="Mode",                          default='centralLine')
+SOURCE_V              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-V",                 default=6.925e-6)
+SOURCE_H              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-H",                 default=0.333e-6)
+SOURCE_DISTANCE_V     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-V",             default=1.5)
+SOURCE_DISTANCE_H     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-H",             default=1.5)
+ESTIMATION_METHOD     = ini_file.get_string_from_ini( section="Output",   key="Estimation-Method",             default='simple_speckle')
+IMAGE_TRANSFER_MATRIX = ini_file.get_list_from_ini(   section="Output",   key="Image-Transfer-Matrix",         default=[0, 1, 0], type=int)
+SHOW_ALIGN_FIGURE     = ini_file.get_boolean_from_ini(section="Output",   key="Show-Align-Figure",             default=False)
 
-SOURCE_V              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-V",         default=6.925e-6)
-SOURCE_H              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-H",         default=0.333e-6)
-SOURCE_DISTANCE_V     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-V",     default=1.5)
-SOURCE_DISTANCE_H     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-H",     default=1.5)
-ESTIMATION_METHOD     = ini_file.get_string_from_ini( section="Output",   key="Estimation-Method",     default='simple_speckle')
-IMAGE_TRANSFER_MATRIX = ini_file.get_list_from_ini(   section="Output",   key="Image-Transfer-Matrix", default=[0, 1, 0], type=int)
-SHOW_ALIGN_FIGURE     = ini_file.get_boolean_from_ini(section="Output",   key="Show-Align-Figure",     default=False)
-
-ini_file.set_value_at_ini(section="Python",   key="Python-Executable",     value=PYTHON)
-ini_file.set_value_at_ini(section="Detector", key="Pixel-Size",            value=PIXEL_SIZE)
-ini_file.set_list_at_ini( section="Detector", key="Image-Size",            values_list=IMAGE_SIZE_PIXEL_HxV)
-ini_file.set_value_at_ini(section="Mask",     key="Pattern-Size",          value=PATTERN_SIZE)
-ini_file.set_value_at_ini(section="Mask",     key="Pattern-Thickness",     value=PATTERN_THICKNESS)
-ini_file.set_value_at_ini(section="Mask",     key="Pattern-Transmission",  value=PATTERN_T)
-ini_file.set_value_at_ini(section="Mask",     key="Pattern-Image",         value=RAN_MASK)
-ini_file.set_value_at_ini(section="Mask",     key="Propagation-Distance",  value=D_PROP)
-ini_file.set_value_at_ini(section="Mask",     key="Mode",                  value=MODE)
-ini_file.set_value_at_ini(section="Source",   key="Source-Size-V",         value=SOURCE_V)
-ini_file.set_value_at_ini(section="Source",   key="Source-Size-H",         value=SOURCE_H)
-ini_file.set_value_at_ini(section="Source",   key="Source-Distance-V",     value=SOURCE_DISTANCE_V)
-ini_file.set_value_at_ini(section="Source",   key="Source-Distance-H",     value=SOURCE_DISTANCE_H)
-ini_file.set_value_at_ini(section="Output",   key="Estimation-Method",     value=ESTIMATION_METHOD)
-ini_file.set_list_at_ini( section="Output",   key="Image-Transfer-Matrix", values_list=IMAGE_TRANSFER_MATRIX)
-ini_file.set_value_at_ini(section="Output",   key="Show-Align-Figure",     value=SHOW_ALIGN_FIGURE)
+ini_file.set_value_at_ini(section="Python",   key="Python-Executable",             value=PYTHON)
+ini_file.set_value_at_ini(section="Detector", key="Pixel-Size",                    value=PIXEL_SIZE)
+ini_file.set_list_at_ini( section="Detector", key="Image-Size",                    values_list=IMAGE_SIZE_PIXEL_HxV)
+ini_file.set_value_at_ini(section="Mask",     key="Pattern-Size",                  value=PATTERN_SIZE)
+ini_file.set_value_at_ini(section="Mask",     key="Pattern-Thickness",             value=PATTERN_THICKNESS)
+ini_file.set_value_at_ini(section="Mask",     key="Pattern-Transmission",          value=PATTERN_T)
+ini_file.set_value_at_ini(section="Mask",     key="Pattern-Image",                 value=RAN_MASK)
+ini_file.set_value_at_ini(section="Mask",     key="Propagation-Distance",          value=D_PROP)
+ini_file.set_value_at_ini(section="Mask",     key="Source-Distance-Recalculation", value=D_SOURCE_RECAL)
+ini_file.set_value_at_ini(section="Mask",     key="Mode",                          value=MODE)
+ini_file.set_value_at_ini(section="Source",   key="Source-Size-V",                 value=SOURCE_V)
+ini_file.set_value_at_ini(section="Source",   key="Source-Size-H",                 value=SOURCE_H)
+ini_file.set_value_at_ini(section="Source",   key="Source-Distance-V",             value=SOURCE_DISTANCE_V)
+ini_file.set_value_at_ini(section="Source",   key="Source-Distance-H",             value=SOURCE_DISTANCE_H)
+ini_file.set_value_at_ini(section="Output",   key="Estimation-Method",             value=ESTIMATION_METHOD)
+ini_file.set_list_at_ini( section="Output",   key="Image-Transfer-Matrix",         values_list=IMAGE_TRANSFER_MATRIX)
+ini_file.set_value_at_ini(section="Output",   key="Show-Align-Figure",             value=SHOW_ALIGN_FIGURE)
 
 ini_file.push()
 
@@ -439,8 +440,10 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         simple_analysis = 0 # NO
 
         # alignment or not, if '', no alignment, '--alignment' with alignment
-        params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
-            '--show_alignFigure ' if show_align_figure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
+        params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + \
+                 ['--show_alignFigure ' if show_align_figure else ''] + \
+                 ['--find_transferMatrix ' if find_transfer_matrix else ''] + \
+                 ['--d_source_recal ' if D_SOURCE_RECAL else '']
         params = ''.join([str(item) for item in params])
 
         command = PYTHON + ' '  + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
@@ -448,7 +451,7 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
                   '--propagated_pattern {} --propagated_patternDet {} --estimation_method {} --saving_path {} --crop {} --det_size {} ' \
                   '--p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
                   '--pattern_T {} --d_source_v {} --d_source_h {} --source_v {} --source_h {} --d_prop {} ' \
-                  '--d_source_recal --find_transferMatrix --mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
+                  '--mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
                   '--pyramid_level {} --template_size {} --window_searching {} ' \
                   '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
                                                                           pattern_path, propagated_pattern, propagated_patternDet, estimation_method, mask_directory,
