@@ -57,21 +57,6 @@ from aps.common.initializer import IniMode, register_ini_instance, get_registere
 from aps.common.measurment.beamline.image_collector import get_default_file_name_prefix
 from aps.common.measurment.beamline.wf import SCRIPT_DIRECTORY
 
-'''
-PIXEL_SIZE           = 1.213e-6 #0.65e-6
-IMAGE_SIZE_PIXEL_HxV = [2160, 2560] #[2560, 2160] #[2160, 2560]
-PATTERN_SIZE = 10e-6  # 4.942e-6  # 4.952e-6
-PATTERN_THICKNESS = 1.5e-6
-PATTERN_T = 0.613
-D_PROP = 300e-3  # 500e-3
-#SOURCE_H = 25e-6  # 277e-6 / (60 / 1.5)
-#SOURCE_V = 10e-6 / (60 / 0.5)  # 10e-6 / (60 / 2)
-SOURCE_H = 10e-6 / (60 / 0.5)
-SOURCE_V = 25e-6
-SHOW_ALIGNFIGURE = False
-RAN_MASK = 'RanMask10umB0.npy' #'RanMask5umB0.npy'
-'''
-
 APPLICATION_NAME = "IMAGE-PROCESSOR"
 
 register_ini_instance(IniMode.LOCAL_FILE,
@@ -88,6 +73,8 @@ PATTERN_THICKNESS     = ini_file.get_float_from_ini(  section="Mask",     key="P
 PATTERN_T             = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Transmission",  default=0.613)
 RAN_MASK              = ini_file.get_string_from_ini( section="Mask",     key="Pattern-Image",         default='RanMask5umB0.npy')
 D_PROP                = ini_file.get_float_from_ini(  section="Mask",     key="Propagation-Distance",  default=500e-3)
+MODE                  = ini_file.get_string_from_ini( section="Mask",     key="Mode",                  default='centralLine')
+
 SOURCE_V              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-V",         default=6.925e-6)
 SOURCE_H              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-H",         default=0.333e-6)
 SOURCE_DISTANCE_V     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-V",     default=1.5)
@@ -104,6 +91,7 @@ ini_file.set_value_at_ini(section="Mask",     key="Pattern-Thickness",     value
 ini_file.set_value_at_ini(section="Mask",     key="Pattern-Transmission",  value=PATTERN_T)
 ini_file.set_value_at_ini(section="Mask",     key="Pattern-Image",         value=RAN_MASK)
 ini_file.set_value_at_ini(section="Mask",     key="Propagation-Distance",  value=D_PROP)
+ini_file.set_value_at_ini(section="Mask",     key="Mode",                  value=MODE)
 ini_file.set_value_at_ini(section="Source",   key="Source-Size-V",         value=SOURCE_V)
 ini_file.set_value_at_ini(section="Source",   key="Source-Size-H",         value=SOURCE_H)
 ini_file.set_value_at_ini(section="Source",   key="Source-Distance-V",     value=SOURCE_DISTANCE_V)
@@ -276,7 +264,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
     show_align_figure    = SHOW_ALIGN_FIGURE
 
     # reconstruction parameter initialization
-    mode            = 'centralLine'  # area or centralLine
+    mode            = MODE  # area or centralLine
     lineWidth       = 10
     down_sampling   = 0.5
     method          = 'WXST'
@@ -354,7 +342,7 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
     show_align_figure    = SHOW_ALIGN_FIGURE
 
     # reconstruction parameter initialization
-    mode            = 'centralLine'  # area or centralLine
+    mode            = MODE  # area or centralLine
     lineWidth       = 10
     down_sampling   = 0.5
     method          = 'WXST'
@@ -434,7 +422,7 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         show_align_figure    = SHOW_ALIGN_FIGURE
 
         # reconstruction parameter initialization
-        mode            = 'centralLine'  # area or centralLine
+        mode            = MODE  # area or centralLine
         lineWidth       = 10
         down_sampling   = 0.5
         method          = 'WXST'

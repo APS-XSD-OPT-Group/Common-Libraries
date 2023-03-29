@@ -194,7 +194,7 @@ class pattern_search:
 
         # I_pattern = rescale(I_pattern, scale)
         size_origin = I_pattern.shape
-        I_pattern = cv2.resize(I_pattern, (int(I_pattern.shape[0]*scale), int(I_pattern.shape[1]*scale)), interpolation = cv2.INTER_NEAREST)
+        I_pattern = cv2.resize(I_pattern, (int(I_pattern.shape[1]*scale), int(I_pattern.shape[0]*scale)), interpolation = cv2.INTER_NEAREST)
         # I_pattern = cv2.resize(I_pattern, (int(I_pattern.shape[0]*scale), int(I_pattern.shape[1]*scale)))
         # I_pattern = snd.zoom(I_pattern, scale, order=0)
         # I_pattern = np.repeat(np.repeat(I_pattern, int(scale), axis=0),
