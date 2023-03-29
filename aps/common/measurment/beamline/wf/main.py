@@ -1061,7 +1061,6 @@ def do_recal_d_source(I_img_raw, I_img, para_pattern, pattern_find, image_transf
         with open(os.path.join(para_pattern['saving_path'], "image_transfer_matrix.npy"), 'wb') as f: np.save(f, np.array(image_transfer_matrix), allow_pickle=False)
 
     if method == 'geometric':
-
         d_source_v, d_source_h = pattern_find.d_source_est                                          
         prColor('re-calculated source distance: {}y    {}x'.format(d_source_v, d_source_h), 'cyan')
 
