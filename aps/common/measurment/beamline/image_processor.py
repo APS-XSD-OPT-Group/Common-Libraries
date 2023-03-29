@@ -52,12 +52,14 @@ import time
 import pathlib
 import numpy
 
+from aps.common.initializer import IniMode, register_ini_instance, get_registered_ini_instance
+
 from aps.common.measurment.beamline.image_collector import get_default_file_name_prefix
 from aps.common.measurment.beamline.wf import SCRIPT_DIRECTORY
 
+'''
 PIXEL_SIZE           = 1.213e-6 #0.65e-6
-IMAGE_SIZE_PIXEL_HxV = [2560, 2160] #[2160, 2560]
-
+IMAGE_SIZE_PIXEL_HxV = [2160, 2560] #[2560, 2160] #[2160, 2560]
 PATTERN_SIZE = 10e-6  # 4.942e-6  # 4.952e-6
 PATTERN_THICKNESS = 1.5e-6
 PATTERN_T = 0.613
@@ -68,23 +70,62 @@ SOURCE_H = 10e-6 / (60 / 0.5)
 SOURCE_V = 25e-6
 SHOW_ALIGNFIGURE = False
 RAN_MASK = 'RanMask10umB0.npy' #'RanMask5umB0.npy'
+'''
+
+APPLICATION_NAME = "IMAGE-PROCESSOR"
+
+register_ini_instance(IniMode.LOCAL_FILE,
+                      ini_file_name="image_processor.ini",
+                      application_name=APPLICATION_NAME,
+                      verbose=False)
+ini_file = get_registered_ini_instance(APPLICATION_NAME)
+
+PYTHON                = ini_file.get_string_from_ini( section="Python",   key="Python-Executable",     default="python")
+PIXEL_SIZE            = ini_file.get_float_from_ini(  section="Detector", key="Pixel-Size",            default=0.65e-6)
+IMAGE_SIZE_PIXEL_HxV  = ini_file.get_list_from_ini(   section="Detector", key="Image-Size",            default=[2160, 2560], type=int)
+PATTERN_SIZE          = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Size",          default=4.942e-6)
+PATTERN_THICKNESS     = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Thickness",     default=1.5e-6)
+PATTERN_T             = ini_file.get_float_from_ini(  section="Mask",     key="Pattern-Transmission",  default=0.613)
+RAN_MASK              = ini_file.get_string_from_ini( section="Mask",     key="Pattern-Image",         default='RanMask5umB0.npy')
+D_PROP                = ini_file.get_float_from_ini(  section="Mask",     key="Propagation-Distance",  default=500e-3)
+SOURCE_V              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-V",         default=6.925e-6)
+SOURCE_H              = ini_file.get_float_from_ini(  section="Source",   key="Source-Size-H",         default=0.333e-6)
+SOURCE_DISTANCE_V     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-V",     default=1.5)
+SOURCE_DISTANCE_H     = ini_file.get_float_from_ini(  section="Source",   key="Source-Distance-H",     default=1.5)
+ESTIMATION_METHOD     = ini_file.get_string_from_ini( section="Output",   key="Estimation-Method",     default='simple_speckle')
+IMAGE_TRANSFER_MATRIX = ini_file.get_list_from_ini(   section="Output",   key="Image-Transfer-Matrix", default=[0, 1, 0], type=int)
+SHOW_ALIGN_FIGURE     = ini_file.get_boolean_from_ini(section="Output",   key="Show-Align-Figure",     default=False)
+
+ini_file.set_value_at_ini(section="Python",   key="Python-Executable",     value=PYTHON)
+ini_file.set_value_at_ini(section="Detector", key="Pixel-Size",            value=PIXEL_SIZE)
+ini_file.set_list_at_ini( section="Detector", key="Image-Size",            values_list=IMAGE_SIZE_PIXEL_HxV)
+ini_file.set_value_at_ini(section="Mask",     key="Pattern-Size",          value=PATTERN_SIZE)
+ini_file.set_value_at_ini(section="Mask",     key="Pattern-Thickness",     value=PATTERN_THICKNESS)
+ini_file.set_value_at_ini(section="Mask",     key="Pattern-Transmission",  value=PATTERN_T)
+ini_file.set_value_at_ini(section="Mask",     key="Pattern-Image",         value=RAN_MASK)
+ini_file.set_value_at_ini(section="Mask",     key="Propagation-Distance",  value=D_PROP)
+ini_file.set_value_at_ini(section="Source",   key="Source-Size-V",         value=SOURCE_V)
+ini_file.set_value_at_ini(section="Source",   key="Source-Size-H",         value=SOURCE_H)
+ini_file.set_value_at_ini(section="Source",   key="Source-Distance-V",     value=SOURCE_DISTANCE_V)
+ini_file.set_value_at_ini(section="Source",   key="Source-Distance-H",     value=SOURCE_DISTANCE_H)
+ini_file.set_value_at_ini(section="Output",   key="Estimation-Method",     value=ESTIMATION_METHOD)
+ini_file.set_list_at_ini( section="Output",   key="Image-Transfer-Matrix", values_list=IMAGE_TRANSFER_MATRIX)
+ini_file.set_value_at_ini(section="Output",   key="Show-Align-Figure",     value=SHOW_ALIGN_FIGURE)
+
+ini_file.push()
 
 class ImageProcessor():
     def __init__(self,
                  data_collection_directory,
                  file_name_prefix=get_default_file_name_prefix(),
                  simulated_mask_directory=None,
-                 energy=20000.0,
-                 source_distance=[1.5, 1.5],
-                 image_transfer_matrix=[0, 1, 0]
-                 ):
+                 energy=20000.0):
         self.__data_collection_directory = data_collection_directory
         self.__file_name_prefix          = file_name_prefix
         self.__simulated_mask_directory  = simulated_mask_directory
         self.__energy                    = energy
-        self.__source_distance           = source_distance
-        self.__image_transfer_matrix     = image_transfer_matrix
-
+        self.__source_distance           = [SOURCE_DISTANCE_H, SOURCE_DISTANCE_V]
+        self.__image_transfer_matrix     = IMAGE_TRANSFER_MATRIX
 
     def generate_simulated_mask(self, image_index_for_mask=1, verbose=False):
         self.__image_transfer_matrix, is_new_mask = _generate_simulated_mask(data_collection_directory=self.__data_collection_directory,
@@ -232,7 +273,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
     source_v             = SOURCE_V
     d_source_h           = source_distance[0]
     d_source_v           = source_distance[1]
-    show_alignFigure     = SHOW_ALIGNFIGURE
+    show_align_figure    = SHOW_ALIGN_FIGURE
 
     # reconstruction parameter initialization
     mode            = 'centralLine'  # area or centralLine
@@ -253,10 +294,10 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
 
     # alignment or not, if '', no alignment, '--alignment' with alignment
     params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
-        '--show_alignFigure ' if show_alignFigure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
+        '--show_alignFigure ' if show_align_figure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
     params = ''.join([str(item) for item in params])
 
-    command = 'python ' + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
+    command = PYTHON + ' '  + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
               ' --img {} --dark {} --flat {} --result_folder {} --pattern_path {} ' \
               '--propagated_pattern {} --propagated_patternDet {} --crop {} --det_size {} ' \
               '--img_transfer_matrix {} --p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
@@ -274,7 +315,9 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
                                                                       wavelet_cut, pyramid_level, template_size,
                                                                       window_search, n_cores,
                                                                       n_group, verbose, simple_analysis, crop_boundary, params)
-    os.system(command)
+    ret_val = os.system(command)
+
+    if ret_val != 0: raise Exception("Wavefront analysis failed")
 
     with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f: image = numpy.load(f, allow_pickle=False).T
 
@@ -308,7 +351,7 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
     source_v             = SOURCE_V
     d_source_h           = source_distance[0]
     d_source_v           = source_distance[1]
-    show_alignFigure     = SHOW_ALIGNFIGURE
+    show_align_figure    = SHOW_ALIGN_FIGURE
 
     # reconstruction parameter initialization
     mode            = 'centralLine'  # area or centralLine
@@ -329,10 +372,10 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
 
     # alignment or not, if '', no alignment, '--alignment' with alignment
     params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
-        '--show_alignFigure ' if show_alignFigure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
+        '--show_alignFigure ' if show_align_figure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
     params = ''.join([str(item) for item in params])
 
-    command = 'python ' + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
+    command = PYTHON + ' '  + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
               ' --img {} --dark {} --flat {} --result_folder {} --pattern_path {} ' \
               '--propagated_pattern {} --propagated_patternDet {} --crop {} --det_size {} ' \
               '--img_transfer_matrix {} --p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
@@ -350,9 +393,10 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
                                                                       wavelet_cut, pyramid_level, template_size,
                                                                       window_search, n_cores,
                                                                       n_group, verbose, simple_analysis, crop_boundary, params)
-    os.system(command)
+    ret_val = os.system(command)
 
-    print("Image " + file_name_prefix + "_%05i.tif" % image_index + " processed")
+    if ret_val != 0: raise Exception("Wavefront analysis failed")
+    else:            print("Image " + file_name_prefix + "_%05i.tif" % image_index + " processed")
 
 def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_directory, energy, source_distance, image_index=1, verbose=False):
     dark = None
@@ -373,6 +417,7 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', RAN_MASK)
         propagated_pattern    = None
         propagated_patternDet = None
+        estimation_method     = ESTIMATION_METHOD
 
         crop                 = ' '.join([str(k) for k in [-1]])
         find_transfer_matrix = True
@@ -386,7 +431,7 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         source_v             = SOURCE_V
         d_source_h           = source_distance[0]
         d_source_v           = source_distance[1]
-        show_alignFigure     = SHOW_ALIGNFIGURE
+        show_align_figure    = SHOW_ALIGN_FIGURE
 
         # reconstruction parameter initialization
         mode            = 'centralLine'  # area or centralLine
@@ -407,18 +452,18 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
 
         # alignment or not, if '', no alignment, '--alignment' with alignment
         params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
-            '--show_alignFigure ' if show_alignFigure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
+            '--show_alignFigure ' if show_align_figure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
         params = ''.join([str(item) for item in params])
 
-        command = 'python ' + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
+        command = PYTHON + ' '  + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
                   ' --img {} --dark {} --flat {} --result_folder {} --pattern_path {} ' \
-                  '--propagated_pattern {} --propagated_patternDet {} --saving_path {} --crop {} --det_size {} ' \
+                  '--propagated_pattern {} --propagated_patternDet {} --estimation_method {} --saving_path {} --crop {} --det_size {} ' \
                   '--p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
                   '--pattern_T {} --d_source_v {} --d_source_h {} --source_v {} --source_h {} --d_prop {} ' \
                   '--d_source_recal --find_transferMatrix --mode {} --lineWidth {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
                   '--pyramid_level {} --template_size {} --window_searching {} ' \
                   '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
-                                                                          pattern_path, propagated_pattern, propagated_patternDet, mask_directory,
+                                                                          pattern_path, propagated_pattern, propagated_patternDet, estimation_method, mask_directory,
                                                                           crop, det_array, p_x, energy,
                                                                           pattern_size, pattern_thickness, pattern_T,
                                                                           d_source_v, d_source_h,
@@ -427,9 +472,10 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
                                                                           wavelet_cut, pyramid_level, template_size,
                                                                           window_search, n_cores,
                                                                           n_group, verbose, simple_analysis, crop_boundary, params)
-        os.system(command)
+        ret_val = os.system(command)
 
-        print("Simulated mask generated in " + mask_directory)
+        if ret_val != 0: raise Exception("Wavefront analysis failed")
+        else:            print("Simulated mask generated in " + mask_directory)
     else:
         is_new_mask = False
         print("Simulated mask already generated in " + mask_directory)

@@ -1130,7 +1130,14 @@ if __name__ == "__main__":
     parser.add_argument('--propagated_patternDet',
                         type=str,
                         default='./images/1DCRL/propagated_patternDet.npz',
-                        help='if None, will search from the propagated pattern. Its size is determined by the det_size')                    
+                        help='if None, will search from the propagated pattern. Its size is determined by the det_size')
+
+    parser.add_argument('--estimation_method',
+                        type=str,
+                        default='simple_speckle',
+                        help='simple_speckle or geometric: simple_speckle means using the slope_tracking to estimate the overall source distance;\n' + \
+                             'geometric means using the image scalling factor to get the overall source distance')
+
     parser.add_argument(
         '--saving_path',
         type=str,
@@ -1301,13 +1308,10 @@ if __name__ == "__main__":
     if not os.path.exists(result_folder): os.makedirs(result_folder)
     
     para_pattern = {
-        'pattern_path':
-        args.pattern_path,  # path to raw binary pattern file
-        'propagated_pattern':
-        args.propagated_pattern,  # load saved propagated pattern or not, if None, will calculate it and save it
-        # 'propagated_pattern': None,
-        'saving_path': file_folder 
-        if args.saving_path is None else args.saving_path,  #if propagated_pattern is None, save the simulated to this path
+        'pattern_path': args.pattern_path,  # path to raw binary pattern file
+        'propagated_pattern': args.propagated_pattern,  # load saved propagated pattern or not, if None, will calculate it and save it
+        'estimation_method': args.estimation_method,
+        'saving_path': file_folder if args.saving_path is None else args.saving_path,  #if propagated_pattern is None, save the simulated to this path
         'propagated_patternDet': args.propagated_patternDet, # propagated transformed simulated reference image at detector, if None, will search from the propagated pattern.
     }
 
@@ -1433,7 +1437,7 @@ if __name__ == "__main__":
     if args.d_source_recal and para_pattern['propagated_pattern'] == 'None' and para_pattern['propagated_patternDet'] == 'None':
         prColor('Re-calculate the source distance according to the current value', 'cyan')
         # estimation method, simple_speckle or geometric, simple_speckle means using the slope_tracking to estimate the overall source distance; geometric means using the image scalling factor to get the overall source distance
-        est_method = 'simple_speckle'
+        est_method = para_pattern['estimation_method']
         d_source_recal = do_recal_d_source(I_img_raw, I_img, para_pattern, pattern_find, image_transfer_matrix, boundary_crop, para_XST, para_simulation, method=est_method)
     
         prColor('use the recalculated source distance to re-generate the matched pattern', 'light_gray')
