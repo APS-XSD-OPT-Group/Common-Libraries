@@ -1245,6 +1245,7 @@ if __name__ == "__main__":
                         'mode for speckle tracking. area: whole crop area; centralLine: vertical and horizontal central line with a width of parser.lineWidth;'
     )
     parser.add_argument('--lineWidth', type=int, default=5, help='line width to calculate the speckle tracking in centralLine mode. The unit is pattern size. Means that 5 is actually 5*pattern_size, such as 25um width')
+    parser.add_argument('--lineDirection', type=str, default='b', help='direction to calculate the speckle tracking in centralLine mode: (v)ertical, (h)orizontal, (b)oth')
 
     parser.add_argument('--down_sampling', type=float, default=1, help='down-sample images to reduce memory cost and accelerate speed.')
     parser.add_argument('--crop_boundary', type=int, default=-1, help='crop the differential phase boundary. -1 will use the searching window. 0 means no cropping')
@@ -1630,71 +1631,53 @@ if __name__ == "__main__":
         save_data({'displace_x': displace_x, 'displace_y': displace_y, 'phase': phase, 
                     'line_phase_y': line_phase[0], 'line_displace_y': line_displace[0], 'line_curve_y': line_curve_filter[0], 'line_phase_x': line_phase[1], 'line_displace_x': line_displace[1], 'line_curve_x': line_curve_filter[1]}, args.result_folder, args.p_x)
 
-            
     elif args.mode == 'centralLine':
         prColor('speckle tracking mode: centralLine. Will use the central linewidth of {}um for calculation.'.format(args.lineWidth*args.pattern_size*1e6), 'cyan')
         # crop the vertical and horizontal block for calculation
         block_width = int(args.lineWidth*args.pattern_size / args.p_x) + 2 * (args.window_searching + args.template_size*int(1/args.down_sampling))
 
-        I_img_v = I_img[:, int(I_img.shape[0] // 2 - block_width // 2):int(I_img.shape[0] // 2 - block_width // 2 + block_width)]
-        I_simu_v = I_simu[:, int(I_img.shape[0] // 2 - block_width // 2):int(I_img.shape[0] // 2 - block_width // 2 + block_width)]
-        displace_y_offset_v = displace_y_offset[:, int(I_img.shape[0] // 2 - block_width // 2):int(I_img.shape[0] // 2 - block_width // 2 + block_width)]
-        displace_x_offset_v = displace_x_offset[:, int(I_img.shape[0] // 2 - block_width // 2):int(I_img.shape[0] // 2 - block_width // 2 + block_width)]
+        image_pair   = []
+        result       = {}
+        data         = {}
+        avg_source_d = [np.nan, np.nan]
 
-        displace_y, _, _, _, _, _ = speckle_tracking(
-            I_simu_v, I_img_v, para_XST, para_simulation['p_x'],
-            para_simulation['d_prop'], c_w, displace_offset=[displace_y_offset_v, displace_x_offset_v])
+        def process_centralLine(index=0):
+            I_img_i = I_img[:, int(I_img.shape[index] // 2 - block_width // 2):int(I_img.shape[index] // 2 - block_width // 2 + block_width)]
+            I_simu_i = I_simu[:, int(I_img.shape[index] // 2 - block_width // 2):int(I_img.shape[index] // 2 - block_width // 2 + block_width)]
+            displace_y_offset_i = displace_y_offset[:, int(I_img.shape[index] // 2 - block_width // 2):int(I_img.shape[index] // 2 - block_width // 2 + block_width)]
+            displace_x_offset_i = displace_x_offset[:, int(I_img.shape[index] // 2 - block_width // 2):int(I_img.shape[index] // 2 - block_width // 2 + block_width)]
 
-        I_img_h = I_img[int(I_img.shape[1] // 2 - block_width // 2):int(I_img.shape[1] // 2 - block_width // 2 + block_width), :]
-        I_simu_h = I_simu[int(I_img.shape[1] // 2 - block_width // 2):int(I_img.shape[1] // 2 - block_width // 2 + block_width), :]
-        displace_y_offset_h = displace_y_offset[int(I_img.shape[1] // 2 - block_width // 2):int(I_img.shape[1] // 2 - block_width // 2 + block_width), :]
-        displace_x_offset_h = displace_x_offset[int(I_img.shape[1] // 2 - block_width // 2):int(I_img.shape[1] // 2 - block_width // 2 + block_width), :]
+            displace_i = [None, None]
+            displace_i[0], displace_i[1], _, _, _, _ = speckle_tracking(
+                I_simu_i, I_img_i, para_XST, para_simulation['p_x'],
+                para_simulation['d_prop'], c_w, displace_offset=[displace_y_offset_i, displace_x_offset_i])
 
-        _, displace_x, _, _, _, _ = speckle_tracking(
-            I_simu_h, I_img_h, para_XST, para_simulation['p_x'],
-            para_simulation['d_prop'], c_w, displace_offset=[displace_y_offset_h, displace_x_offset_h])
+            line_displace = np.mean(displace_i[index], axis=1 if index==0 else 0)
+            line_displace = line_displace - np.mean(line_displace)
 
+            # get phase and curveature for central line profile
+            line_dpc   = line_displace * para_simulation['p_x'] / para_simulation['d_prop']
+            line_phase = np.cumsum(line_dpc)*para_simulation['p_x'] * 2 * np.pi / c_w
+            line_curve = np.gradient(line_displace)/para_simulation['d_prop']
+            avg_s_d    = 1/np.mean(line_curve)
+            # filter the line curve
+            line_curve_filter = snd.gaussian_filter(line_curve, 21)
 
-        line_displace = [np.mean(displace_y, axis=1), np.mean(displace_x, axis=0)]
-        line_displace = [line_displace[0] - np.mean(line_displace[0]), line_displace[1] - np.mean(line_displace[1])]
-        # get phase and curveature for central line profile 
-        line_dpc = [line_displace[0] * para_simulation['p_x'] / para_simulation['d_prop'], 
-                    line_displace[1] * para_simulation['p_x'] / para_simulation['d_prop']]
-        line_phase = [np.cumsum(line_dpc[0])*para_simulation['p_x'] * 2 * np.pi / c_w,
-                     np.cumsum(line_dpc[1])*para_simulation['p_x'] * 2 * np.pi / c_w]
-        line_curve = [np.gradient(line_displace[0])/para_simulation['d_prop'],
-                            np.gradient(line_displace[1])/para_simulation['d_prop']]
-        # filter the line curve
-        line_curve_filter = [snd.gaussian_filter(line_curve[0], 21), snd.gaussian_filter(line_curve[1], 21)]
+            suffix = 'y' if index==0 else 'x'
+            image_pair.append(['line_displace_' + suffix, line_displace,     '[px]'])
+            image_pair.append(['line_phase_' + suffix,    line_phase,        '[rad]'])
+            image_pair.append(['line_curve_' + suffix,    line_curve_filter, '[1/m]'])
+            result['avg_source_d_' + suffix] = avg_s_d
+            data['line_displace_' + suffix]  = line_displace
+            data['line_phase_' + suffix   ]  = line_phase
+            data['line_curve_' + suffix   ]  = line_curve_filter
+            avg_source_d[index]              = avg_s_d
 
-        prColor('mean source distance: {}y    {}x'.format(1/np.mean(line_curve[0]), 1/np.mean(line_curve[1])), 'cyan')
+        if args.lineDirection == 'v' or args.lineDirection == 'b': process_centralLine(0)
+        if args.lineDirection == 'h' or args.lineDirection == 'b': process_centralLine(1)
 
-        save_figure_1D(image_pair=[['line_displace_x', line_displace[1], '[px]'],
-                                ['line_phase_x', line_phase[1], '[rad]'],
-                                ['line_displace_y', line_displace[0], '[px]'],
-                                ['line_phase_y', line_phase[0], '[rad]'],
-                                ['line_curve_y', line_curve_filter[0], '[1/m]'],
-                                ['line_curve_x', line_curve_filter[1], '[1/m]']], path=args.result_folder, p_x=args.p_x)
+        prColor('mean source distance: {}y    {}x'.format(avg_source_d[0], avg_source_d[1]), 'cyan')
+        save_figure_1D(image_pair=image_pair, path=args.result_folder, p_x=args.p_x)
+        write_json(args.result_folder, 'result', result)
+        save_data(data, args.result_folder, args.p_x)
 
-        write_json(args.result_folder, 'result', {'avg_source_d_x': 1/np.mean(line_curve[1]),
-                                                    'avg_source_d_y': 1/np.mean(line_curve[0])})
-
-        save_data({'line_phase_y': line_phase[0], 'line_displace_y': line_displace[0], 'line_curve_y': line_curve_filter[0], 'line_phase_x': line_phase[1], 'line_displace_x': line_displace[1], 'line_curve_x': line_curve_filter[1]}, args.result_folder, args.p_x)
-
-    # enablePrint()
-    # plt.figure(figsize=(10,3))
-    # plt.subplot(131)
-    # plt.imshow(I_img)
-    # plt.colorbar()
-
-    # plt.subplot(132)
-    # plt.imshow(I_simu)
-    # plt.colorbar()
-
-    # plt.subplot(133)
-    # plt.imshow(flat)
-    # plt.colorbar()
-
-    # plt.show()
-
-    
