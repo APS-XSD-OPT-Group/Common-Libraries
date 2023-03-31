@@ -1092,8 +1092,6 @@ def do_recal_d_source(I_img_raw, I_img, para_pattern, pattern_find, image_transf
         prColor('Wrong method for source distance re-calculation', 'red')
 
 if __name__ == "__main__":
-    print("WF ANALYSYS SCRIPT - NEW")
-
     # paremater settings
     parser = argparse.ArgumentParser(
         description='experimental data analysis for absolute phase measurement',
