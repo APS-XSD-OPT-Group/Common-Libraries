@@ -319,7 +319,7 @@ def _get_image_data(data_collection_directory, file_name_prefix, mask_directory,
     crop_boundary   = CROP_BOUNDARY
     n_cores         = N_CORES
     n_group         = N_GROUP
-    verbose         = 1 if verbose else 0 # NO
+    verbose         = 0 if verbose else 1 # NO
     simple_analysis = 1
 
     # alignment or not, if '', no alignment, '--alignment' with alignment
@@ -398,7 +398,7 @@ def _process_image(data_collection_directory, file_name_prefix, mask_directory, 
     crop_boundary   = CROP_BOUNDARY
     n_cores         = N_CORES
     n_group         = N_GROUP
-    verbose         = 1 if verbose else 0 # NO
+    verbose         = 0 if verbose else 1 # NO
     simple_analysis = 0 # NO
 
     # alignment or not, if '', no alignment, '--alignment' with alignment
@@ -479,7 +479,7 @@ def _generate_simulated_mask(data_collection_directory, file_name_prefix, mask_d
         crop_boundary = CROP_BOUNDARY
         n_cores = N_CORES
         n_group = N_GROUP
-        verbose         = 1 if verbose else 0 # NO
+        verbose         = 0 if verbose else 1 # NO
         simple_analysis = 0 # NO
 
         # alignment or not, if '', no alignment, '--alignment' with alignment
