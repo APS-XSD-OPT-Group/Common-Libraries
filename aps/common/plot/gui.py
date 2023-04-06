@@ -133,11 +133,15 @@ class ValueDialog(QMessageBox):
         else: return None
 
 
+def selectSaveFileFromDialog(widget, message="Save File", default_file_name="", file_extension_filter="*.*"):
+    file_path = QFileDialog.getSaveFileName(widget, message, default_file_name, file_extension_filter)[0]
+    if not file_path is None and not file_path.strip() == "": return file_path
+    else: return None
+
 def selectFileFromDialog(widget, previous_file_path="", message="Select File", start_directory=".", file_extension_filter="*.*"):
     file_path = QFileDialog.getOpenFileName(widget, message, start_directory, file_extension_filter)[0]
     if not file_path is None and not file_path.strip() == "": return file_path
     else: return previous_file_path
-
 
 def selectDirectoryFromDialog(widget, previous_directory_path="", message="Select Directory", start_directory="."):
     directory_path = QFileDialog.getExistingDirectory(widget, message, start_directory)
