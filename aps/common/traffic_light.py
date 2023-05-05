@@ -217,5 +217,5 @@ def register_traffic_light_instance(reset=False, application_name=None, **kwargs
     if reset: __TrafficLightRegistry.Instance().reset(application_name)
     __TrafficLightRegistry.Instance().register_traffic_light(__TrafficLightFile(application_name, **kwargs), application_name)
 
-def get_registered_traffic_light_instance(application_name=None):
+def get_registered_traffic_light_instance(application_name=None) -> TrafficLightFacade:
     return __TrafficLightRegistry.Instance().get_traffic_light_instance(application_name)

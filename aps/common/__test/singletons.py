@@ -44,14 +44,19 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE         #
 # POSSIBILITY OF SUCH DAMAGE.                                             #
 # ----------------------------------------------------------------------- #
-import os
-from subprocess import Popen, PIPE
 
-def sys_exec(cmd, shell=True, env=None):
-    if env is None: env = os.environ
-    a = Popen(cmd, shell=shell, stdout=PIPE, stderr=PIPE, env=env)
-    a.wait()
+from aps.common.singleton import SingletonMeta
 
-    return a.returncode, a.communicate()[0].decode('utf-8'), a.communicate()[1].decode('utf-8')
+class Ciccio(metaclass=SingletonMeta):
+
+    def __init__(self, a, b=None):
+        self.a = a
+        self.b = b
 
 
+ciccio = Ciccio(2, b=4)
+ciccio2 = Ciccio(3, b=7)
+
+print(ciccio is ciccio2)
+print(ciccio.a, ciccio2.a)
+print(ciccio.b, ciccio2.b)

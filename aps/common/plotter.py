@@ -293,6 +293,6 @@ def register_plotter_instance(plotter_mode=PlotterMode.FULL, reset=False, applic
     elif plotter_mode == PlotterMode.SAVE_ONLY:    PlotterRegistry.Instance().register_plotter(SaveOnlyPlotter(application_name), application_name, replace)
     elif plotter_mode == PlotterMode.NONE:         PlotterRegistry.Instance().register_plotter(NullPlotter(application_name), application_name, replace)
 
-def get_registered_plotter_instance(application_name=None):
+def get_registered_plotter_instance(application_name=None) -> PlotterFacade:
     return PlotterRegistry.Instance().get_plotter_instance(application_name)
 

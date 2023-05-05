@@ -48,7 +48,6 @@
 import threading
 
 def synchronized_method(method):
-
     outer_lock = threading.Lock()
     lock_name = "__"+method.__name__+"_lock"+"__"
 
@@ -56,26 +55,34 @@ def synchronized_method(method):
         with outer_lock:
             if not hasattr(self, lock_name): setattr(self, lock_name, threading.Lock())
             lock = getattr(self, lock_name)
-            with lock:
-                return method(self, *args, **kws)
+            with lock: return method(self, *args, **kws)
 
     return sync_method
 
+# decorator @Singleton
 class Singleton:
-    def __init__(self, decorated):
-        self.__decorated = decorated
+    def __init__(self, decorated): self.__decorated = decorated
 
     @synchronized_method
     def Instance(self, **args):
-        try:
-            return self.__instance
+        try: return self.__instance
         except AttributeError:
             self.__instance = self.__decorated(**args)
             return self.__instance
 
-    def __call__(self):
-        raise TypeError('Singletons must be accessed through `Instance()`.')
+    def __call__(self): raise TypeError('Singletons must be accessed through `Instance()`.')
+    def __instancecheck__(self, inst): return isinstance(inst, self.__decorated)
 
-    def __instancecheck__(self, inst):
-        return isinstance(inst, self.__decorated)
+# Singleton as Metaclass
+from threading import Lock
 
+class SingletonMeta(type):
+    _instances = {}
+    _lock: Lock = Lock()
+
+    def __call__(cls, *args, **kwargs):
+        with cls._lock:
+            if cls not in cls._instances:
+                instance = super().__call__(*args, **kwargs)
+                cls._instances[cls] = instance
+        return cls._instances[cls]

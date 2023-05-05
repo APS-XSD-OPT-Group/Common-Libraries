@@ -192,7 +192,7 @@ def register_ini_instance(ini_mode=IniMode.LOCAL_FILE, reset=False, application_
     if ini_mode == IniMode.LOCAL_FILE: __IniRegistry.Instance().register_ini(__LocalIniFile(**kwargs), application_name)
     elif ini_mode == IniMode.NONE:     __IniRegistry.Instance().register_ini(__NullIni(), application_name)
 
-def get_registered_ini_instance(application_name=None):
+def get_registered_ini_instance(application_name=None) -> IniFacade:
     return __IniRegistry.Instance().get_ini_instance(application_name)
 
 

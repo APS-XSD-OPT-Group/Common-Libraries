@@ -411,7 +411,7 @@ def register_logger_single_instance(stream=DEFAULT_STREAM, logger_mode=LoggerMod
     elif logger_mode==LoggerMode.WARNING: __LoggerRegistry.Instance().register_logger(__WarningLogger(stream), application_name, replace)
     elif logger_mode==LoggerMode.ERROR:   __LoggerRegistry.Instance().register_logger(__ErrorLogger(stream), application_name, replace)
 
-def get_registered_logger_instance(application_name=None):
+def get_registered_logger_instance(application_name=None) -> LoggerFacade:
     return __LoggerRegistry.Instance().get_logger_instance(application_name)
 
 def register_secondary_logger(stream=DEFAULT_STREAM, logger_mode=LoggerMode.FULL, logger_name=SECONDARY_LOGGER, application_name=None):
@@ -420,6 +420,6 @@ def register_secondary_logger(stream=DEFAULT_STREAM, logger_mode=LoggerMode.FULL
     elif logger_mode==LoggerMode.WARNING: __SecondaryLoggerRegistry.Instance().register_logger(__WarningLogger(stream), logger_name, application_name)
     elif logger_mode==LoggerMode.ERROR:   __SecondaryLoggerRegistry.Instance().register_logger(__ErrorLogger(stream), logger_name, application_name)
     
-def get_registered_secondary_logger(logger_name=SECONDARY_LOGGER, application_name=None):
+def get_registered_secondary_logger(logger_name=SECONDARY_LOGGER, application_name=None) -> LoggerFacade:
     return __SecondaryLoggerRegistry.Instance().get_logger_instance(logger_name, application_name)
     

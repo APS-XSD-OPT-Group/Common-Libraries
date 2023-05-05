@@ -44,14 +44,3 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE         #
 # POSSIBILITY OF SUCH DAMAGE.                                             #
 # ----------------------------------------------------------------------- #
-import os
-from subprocess import Popen, PIPE
-
-def sys_exec(cmd, shell=True, env=None):
-    if env is None: env = os.environ
-    a = Popen(cmd, shell=shell, stdout=PIPE, stderr=PIPE, env=env)
-    a.wait()
-
-    return a.returncode, a.communicate()[0].decode('utf-8'), a.communicate()[1].decode('utf-8')
-
-
