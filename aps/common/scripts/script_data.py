@@ -68,3 +68,10 @@ class ScriptData():
 
     def _get_instance_to_duplicate(self):
         return ScriptData()
+
+    def __str__(self):
+        if self.__parameters is None: return ""
+        string = "{"
+        for key in self.__parameters.keys():
+            string += key + " = " + str(self.__parameters[key]) + ", "
+        return string[:-2]
