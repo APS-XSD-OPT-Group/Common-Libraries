@@ -49,7 +49,8 @@
 ##########################################################################
 # WIDGETS UTILS FROM OASYS
 
-from PyQt5.QtWidgets import QWidget, QMessageBox, QTextEdit, QFileDialog
+from PyQt5.QtWidgets import QWidget, QMessageBox, QTextEdit, QFileDialog, QLineEdit
+from PyQt5.QtGui import QFont, QPalette, QColor
 
 def _set_size(dialog, width, height):
     stylesheet_string = "QLabel{"
@@ -168,11 +169,22 @@ def widgetLabel(widget, label="", labelWidth=None, **misc):
 
     return lbl
 
+def setReadOnly(lineedit: QLineEdit):
+    lineedit.setReadOnly(True)
+    font = QFont(lineedit.font())
+    font.setBold(True)
+    lineedit.setFont(font)
+    palette = QPalette(lineedit.palette())
+    palette.setColor(QPalette.Text, QColor('dark blue'))
+    lineedit.setPalette(palette)
+    lineedit.setStyleSheet("QLineEdit { background: rgb(243, 240, 160); selection-background-color: rgb(233, 99, 0); }")
+
+
 def lineEdit(widget, master, value, label=None, labelWidth=None,
              orientation='vertical', box=None, callback=None,
              valueType=str, validator=None, controlWidth=None,
              callbackOnType=False, focusInCallback=None,
-             enterPlaceholder=False, **misc):
+             enterPlaceholder=False, readOnly=False, **misc):
     if box or label:
         b = widgetBox(widget, box, orientation, addToLayout=False)
         widgetLabel(b, label, labelWidth)
@@ -208,6 +220,8 @@ def lineEdit(widget, master, value, label=None, labelWidth=None,
     __miscellanea(ledit, b, widget, **misc)
     if value and (valueType != str): ledit.setAlignment(Qt.AlignRight)
     ledit.setStyleSheet("background-color: white;")
+
+    if readOnly: setReadOnly(ledit)
 
     return ledit
 
