@@ -52,8 +52,11 @@ from aps.common.plotter import register_plotter_instance, PlotterMode
 class GenericQTScript():
 
     def __init__(self, sys_argv=None, **kwargs):
+        self.__sys_argv = sys_argv
         self.__args = self._parse_sys_arguments(sys_argv)
         self.__args = {**self.__args, **self._parse_additional_parameters(**kwargs)}
+
+    def sys_argv(self): return self.__sys_argv
 
     def run_script(self):
         self._initialize_utils(**self.__args)
