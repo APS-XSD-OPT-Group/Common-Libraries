@@ -45,11 +45,15 @@
 
 import sys
 from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout
+from PyQt5.QtCore import Qt
+
 from aps.common.plot.gui import widgetBox, button, ConfirmDialog
 
 class CloseApp(QMainWindow):
     def __init__(self, parent=None):
         super(CloseApp, self).__init__(parent)
+
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint)
 
         self.setWindowTitle("Close Application")
         container_widget = QWidget()
