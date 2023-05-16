@@ -142,9 +142,16 @@ class __LocalIniFile(IniFacade):
         else:
             values = self.__get_from_ini(section, key).split(',')
             values = [value.strip() for value in values]
-            if   type==int:   return [int(value) for value in values]
-            elif type==float: return [float(value) for value in values]
-            elif type==bool:  return [(True if value.lower() == "true" else False) for value in values]
+
+            if   type==int:
+                try:    return [int(value) for value in values]
+                except: return []
+            elif type==float:
+                try: return [float(value) for value in values]
+                except: return []
+            elif type==bool:
+                try: return [(True if value.lower() == "true" else False) for value in values]
+                except: return []
             elif type==str:   return values
             else: raise ValueError("type not recognized")
 
