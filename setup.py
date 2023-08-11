@@ -52,7 +52,7 @@ except AttributeError:
 
 NAME = 'aps_common_libraries'
 
-VERSION = '1.0.9'
+VERSION = '1.0.10'
 ISRELEASED = False
 
 DESCRIPTION = 'APS Common Libraries'
