@@ -140,7 +140,7 @@ class __LocalIniFile(IniFacade):
         value = self.__get_from_ini(section, key, default=None)
         if value is None: return default
         else:
-            values = self.__get_from_ini(section, key).split(',')
+            values = value.split(',')
             values = [value.strip() for value in values]
 
             if   type==int:
