@@ -53,8 +53,8 @@ class DictionaryWrapper():
     def set_parameter(self, parameter_name, parameter_value):
         self.__dictionary[parameter_name] = parameter_value
 
-    def get_parameter(self, parameter_name):
-        return self.__dictionary[parameter_name]
+    def get_parameter(self, parameter_name, default=None):
+        return self.__dictionary.get(parameter_name, default)
 
     def has_parameter(self, parameter_name):
         return parameter_name in self.__dictionary.keys()
