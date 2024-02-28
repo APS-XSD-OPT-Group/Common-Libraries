@@ -51,7 +51,7 @@ import traceback
 class __AbstractChainOfResponsibility:
     def __init__(self): self._chain_of_responsibility = {}
 
-    def initialize(self, classes : dict = {}, **kwargs):
+    def initialize(self, classes : dict = {}, instances:dict = {}, **kwargs):
         for class_id in classes.keys():
             try:
                 specific_class = classes.get(class_id)
@@ -63,6 +63,21 @@ class __AbstractChainOfResponsibility:
                    (module_name is None or module_name.strip() == ""): raise ValueError("Warning on chain of responsibility initialization: " + specific_class + " is specified with a wrong format")
 
                 self._add_to_chain(class_id, class_name, module_name, **kwargs)
+            except ValueError as e:
+                print(e)
+            except Exception:
+                print(traceback.format_exc())
+
+        for class_id in instances.keys():
+            try:
+                if not class_id in classes.keys():
+                    instance = instances[class_id]
+                    if not isinstance(instance, self._get_chain_interface()):
+                        raise ValueError("Warning on chain of responsibility initialization: " + instance.__class__.__name__ +
+                                         " is not of type " + self._get_chain_interface().__name__)
+                    self._chain_of_responsibility[class_id] = instance
+                else:
+                    raise ValueError("Class " + class_id + " has been provided both as class name and as instance. Instance is ignored")
             except ValueError as e:
                 print(e)
             except Exception:
@@ -80,14 +95,19 @@ class DynamicChainOfResponsibility(__AbstractChainOfResponsibility):
     def get_instance_from_chain(self, class_id : str = None, **kwargs):
         if class_id is None: raise ValueError("class id is None")
 
-        try: module_name, class_name = self._chain_of_responsibility[class_id]
+        try: item = self._chain_of_responsibility[class_id]
         except: raise ValueError("Class " + class_id + " not found")
 
-        instance = instance_for_name(module_name=module_name, class_name=class_name, **kwargs)
+        try:
+            module_name, class_name = item
 
-        if not isinstance(instance, self._get_chain_interface()):
-            raise ValueError("Warning on chain of responsibility initialization: " + class_name +
-                             " is not of type " + self._get_chain_interface().__name__)
+            instance = instance_for_name(module_name=module_name, class_name=class_name, **kwargs)
+
+            if not isinstance(instance, self._get_chain_interface()):
+                raise ValueError("Warning on chain of responsibility initialization: " + class_name +
+                                 " is not of type " + self._get_chain_interface().__name__)
+        except:
+            instance = item
 
         return instance
 
