@@ -44,6 +44,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE         #
 # POSSIBILITY OF SUCH DAMAGE.                                             #
 # #########################################################################
+import copy
+
 import numpy
 
 class DictionaryWrapper():
@@ -64,6 +66,9 @@ class DictionaryWrapper():
 
     def get_parameters_number(self):
         return len(self.__dictionary.keys())
+
+    def to_dictionary(self) -> dict:
+        return self.__dictionary.copy()
 
     def names_to_numpy_array(self):
         return numpy.array(list(self.__dictionary.keys()))
