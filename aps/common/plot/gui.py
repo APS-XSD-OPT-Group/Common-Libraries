@@ -51,13 +51,11 @@
 
 from PyQt5.QtWidgets import QWidget, QMessageBox, QTextEdit, QFileDialog, QLineEdit
 from PyQt5.QtGui import QFont, QPalette, QColor
+from PyQt5.QtCore import QSize
 
-def _set_size(dialog, width, height):
-    stylesheet_string = "QLabel{"
-    if not width is None:  stylesheet_string += "min-width: " + str(width) + "px;"
-    if not height is None: stylesheet_string += "min-height: " + str(height) + "px;"
-    stylesheet_string += "}"
-    if not (width is None and height is None): dialog.setStyleSheet(stylesheet_string)
+def _set_size(dialog: QMessageBox, width, height):
+    new_size  = QSize(500 if width is None else width, 150 if height is None else height)
+    dialog.setBaseSize(new_size.width(), new_size.height())
 
 class MessageDialog(QMessageBox):
     def __init__(self, parent, message, title=None, type="information", width=None, height=None):

@@ -67,11 +67,20 @@ def check_range_boundaries(rb_1, rb_2, is_scale=True):
 def check_path_existance(path, name):
     if not os.path.exists(path): raise ValueError(name + " does not exist")
 
+
+from PyQt5.QtWidgets import QLabel
+
 def check_and_create_directory(parent, folder, folder_name):
     if not os.path.exists(folder):
+        row_1 = "<p align='left'>" + folder_name + " does not exist. Do you confirm creation of a new folder with the following path:<br><br>"
+        row_2 = folder + "</p>"
+
+        size_1 = QLabel().fontMetrics().boundingRect(row_1)
+        size_2 = QLabel().fontMetrics().boundingRect(row_2)
+
         if ConfirmDialog.confirmed(parent, title="Create " + folder_name,
-                                   message=folder_name + " does not exist. Do you confirm creation of a new folder with the following path:\n\n" + folder,
-                                   width=700):
+                                   message=row_1 + row_2,
+                                   width=max(size_1.width(), size_2.width()), height=130+size_1.height()*4):
             try: os.mkdir(folder)
             except Exception as e: raise ValueError("Exception occurred while creating " + folder_name + ":\n"+ str(e.args[0]))
         else: raise ValueError("Creation of " + folder_name + " aborted")
