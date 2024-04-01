@@ -63,7 +63,7 @@ class IniFacade:
     def get_int_from_ini(self, section, key, default=None): raise NotImplementedError()
     def get_float_from_ini(self, section, key, default=None): raise NotImplementedError()
     def get_boolean_from_ini(self, section, key, default=False): raise NotImplementedError()
-    def get_list_from_ini(self, section, key, default=None): raise NotImplementedError()
+    def get_list_from_ini(self, section, key, default=None, type=str): raise NotImplementedError()
     def dump(self): raise NotImplementedError()
     def push(self): raise NotImplementedError()
 
@@ -74,7 +74,7 @@ class __NullIni(IniFacade):
     def get_int_from_ini(self, section, key, default=None): pass
     def get_float_from_ini(self, section, key, default=None): pass
     def get_boolean_from_ini(self, section, key, default=False): pass
-    def get_list_from_ini(self, section, key, default=None): pass
+    def get_list_from_ini(self, section, key, default=None, type=str): pass
     def dump(self): pass
     def push(self): pass
 
@@ -136,7 +136,7 @@ class __LocalIniFile(IniFacade):
         value = self.__get_from_ini(section, key, default)
         return (default if not default is None else False) if value is None else (True if value.strip().lower() == "true" else False)
 
-    def get_list_from_ini(self, section, key, default=[], type=int):
+    def get_list_from_ini(self, section, key, default=[], type=str):
         value = self.__get_from_ini(section, key, default=None)
         if value is None: return default
         else:

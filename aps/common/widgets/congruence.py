@@ -49,7 +49,9 @@ import numbers
 
 from aps.common.plot.gui import ConfirmDialog
 
-def check_num(num): return isinstance(num, numbers.Number)
+def check_num(num):
+    if isinstance(num, str): return num.lower().replace('.','', 1).replace('e', '', 1).replace('-', '', 1).replace('+', '', 1).isdigit()
+    else:                    return isinstance(num, numbers.Number)
 
 def check_positive(num, strictly=True):
     if strictly: return check_num(num) and num > 0.0
