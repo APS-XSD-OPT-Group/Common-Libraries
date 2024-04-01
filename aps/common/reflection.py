@@ -45,6 +45,13 @@
 # POSSIBILITY OF SUCH DAMAGE.                                             #
 # ----------------------------------------------------------------------- #
 import importlib
+import typing
+
+def get_class_full_name(class_entity: typing.Type) -> str:
+    module = class_entity.__module__
+    if module is None or module == str.__class__.__module__: module = ""
+
+    return module + '.' + class_entity.__qualname__
 
 def class_for_name(module_name, class_name):
     try:

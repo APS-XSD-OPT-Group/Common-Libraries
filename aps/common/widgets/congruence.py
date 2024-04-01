@@ -54,8 +54,8 @@ def check_num(num):
     else:                    return isinstance(num, numbers.Number)
 
 def check_positive(num, strictly=True):
-    if strictly: return check_num(num) and num > 0.0
-    else:        return check_num(num) and num >= 0.0
+    if strictly: return check_num(num) and float(num) > 0.0
+    else:        return check_num(num) and float(num) >= 0.0
 
 def check_int(num):  return check_num(num) and type(num) == int
 def check_sign(num): return check_num(num) and check_int(num) and num in [-1, 0, 1]
