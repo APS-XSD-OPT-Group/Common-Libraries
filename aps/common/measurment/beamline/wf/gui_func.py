@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 from matplotlib.widgets import RectangleSelector
 import numpy as np
 import tkinter as tk
@@ -8,12 +8,12 @@ from tkinter import filedialog
 class crop_img:
     def __init__(self, data) -> None:
         self.data = data
-        self.fig = plt.figure()
+        self.fig = Figure()
         self.ax1 = self.fig.add_subplot(121)
         self.ax1.imshow(data)
         self.ax2 = self.fig.add_subplot(122)
         self.ax2.imshow(np.zeros_like(data))
-        plt.subplots_adjust()
+        self.fig.subplots_adjust()
 
     def line_select_callback(self, eclick, erelease):
         """
@@ -41,7 +41,7 @@ class crop_img:
                                         spancoords='pixels',
                                         interactive=True)
 
-        plt.show()
+        self.fig.show()
 
 
 
@@ -56,10 +56,6 @@ def crop_gui(data):
     corner2 = data_crop.corner2
 
     return cropped_img, [corner1, corner2]
-    # plt.figure()
-    # plt.imshow(cropped_img)
-    # plt.colorbar()
-    # plt.show()
 
 def gui_load_data(directory='', title="File name with Data"):
 
