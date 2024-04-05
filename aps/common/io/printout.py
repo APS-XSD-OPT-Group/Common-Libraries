@@ -84,11 +84,11 @@ def print_color(word, color_type='black'):
 from time import strftime
 
 # time functions
-def datetime_now_str():
-    return strftime("%Y%m%d_%H%M%S")
+def datetime_now_str(format="%Y%m%d_%H%M%S"):
+    return strftime(format)
 
-def time_now_str():
-    return strftime("%H%M%S")
+def time_now_str(format="%H%M%S"):
+    return strftime(format)
 
-def date_now_str():
-    return strftime("%Y%m%d")
+def date_now_str(format="%Y%m%d"):
+    return strftime(format)
