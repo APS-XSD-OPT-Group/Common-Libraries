@@ -392,9 +392,7 @@ def textArea(height=None, width=None, readOnly=True, noWrap=None):
     area = QTextEdit()
     area.setReadOnly(readOnly)
     area.setStyleSheet("background-color: white;")
-    if noWrap is not None:
-        area.setLineWrapMode(QTextEdit.NoWrap)
-
+    if noWrap: area.setLineWrapMode(QTextEdit.NoWrap)
     if not height is None: area.setFixedHeight(height)
     if not width is None: area.setFixedWidth(width)
 
