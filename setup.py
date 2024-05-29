@@ -50,9 +50,11 @@ try:
 except AttributeError:
     from setuptools import find_packages, setup
 
+import platform
+
 NAME = 'aps_common_libraries'
 
-VERSION = '1.0.14'
+VERSION = '1.0.15'
 ISRELEASED = False
 
 DESCRIPTION = 'APS Common Libraries'
@@ -83,19 +85,37 @@ CLASSIFIERS = [
     'Intended Audience :: Science/Research',
 ]
 
-INSTALL_REQUIRES = (
-    'setuptools',
-    'numpy<1.23,>=1.21',
-    'scipy<=1.9.1,>=1.7.3',
-    'matplotlib<=3.5.3,>=3.3.2',
-    'PyQt5<5.16',
-    'scikit-image',
-    'opencv-python',
-    'h5py',
-    'numba',
-    'torch<=1.13.0',
-    'pyepics',
-)
+version = platform.python_version_tuple()
+
+if not version[0] == '3': raise ValueError("Use Python3")
+if version[1] == '8':
+    INSTALL_REQUIRES = (
+        'setuptools',
+        'numpy<1.23,>=1.21',
+        'scipy<=1.9.1,>=1.7.3',
+        'matplotlib<=3.5.3,>=3.3.2',
+        'PyQt5<5.16',
+        'scikit-image',
+        'opencv-python',
+        'h5py',
+        'numba',
+        'torch<=1.13.0',
+        'pyepics',
+    )
+else:
+    INSTALL_REQUIRES = (
+        'setuptools',
+        'numpy',
+        'scipy',
+        'matplotlib',
+        'PyQt5==5.15.10',
+        'scikit-image',
+        'opencv-python',
+        'h5py',
+        'numba',
+        'torch',
+        'pyepics',
+    )
 
 SETUP_REQUIRES = (
     'setuptools',
