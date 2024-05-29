@@ -88,7 +88,7 @@ INSTALL_REQUIRES = (
     'numpy<1.23,>=1.21',
     'scipy<=1.9.1,>=1.7.3',
     'matplotlib<=3.5.3,>=3.3.2',
-    'PyQt5==5.15.2',
+    'PyQt5<5.16',
     'scikit-image',
     'opencv-python',
     'h5py',
