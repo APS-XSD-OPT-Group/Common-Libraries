@@ -48,4 +48,4 @@
 def round_to_multiple(number, multiple):
     decimal_places = abs(int(f'{multiple:e}'.split('e')[-1]))
 
-    return multiple * round (number / multiple)
+    return multiple * round (number / multiple, decimal_places)
