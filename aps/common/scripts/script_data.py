@@ -62,8 +62,8 @@ class ScriptData():
         duplicated = self._get_instance_to_duplicate()
 
         for parameter_name in self.__parameters.keys():
-            duplicated.set_parameter(parameter_name, copy.deepcopy(self.get_parameter(parameter_name)))
-
+            try: duplicated.set_parameter(parameter_name, copy.deepcopy(self.get_parameter(parameter_name)))
+            except: duplicated.set_parameter(parameter_name, self.get_parameter(parameter_name))
         return duplicated
 
     def _get_instance_to_duplicate(self):
