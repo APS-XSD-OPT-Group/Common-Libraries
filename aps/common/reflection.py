@@ -82,16 +82,20 @@ def call_method_of_instance(instance, method_name, **arguments):
     try: return getattr(instance, method_name)(**arguments)
     except AttributeError: raise ValueError('Method ' + method_name + ' does not exist')
 
-def get_class_name_and_module(full_name : str):
+def get_class_name_and_module(full_name : str, raise_exception=True):
     try:
         tokens      = full_name.split(sep=".")
         class_name  = tokens[-1]
+        if len(class_name) == 0: class_name = None
         module_name = full_name[:-(len(class_name)+1)]
+        if len(module_name) == 0: module_name = None
 
         return class_name, module_name
     except:
-        raise ValueError("Malformed Class Name: " + full_name)
+        if raise_exception: raise ValueError("Malformed Class Name: " + full_name)
+        else: return None, None
 
 if __name__=="__main__":
     print(get_class_name_and_module("aps.common.ciccio.Pelliccio"))
     print(get_class_name_and_module("CiccioPelliccio"))
+    print(get_class_name_and_module(None, raise_exception=False))
