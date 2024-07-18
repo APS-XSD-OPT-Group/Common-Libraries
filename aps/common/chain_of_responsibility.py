@@ -106,7 +106,10 @@ class DynamicChainOfResponsibility(__AbstractChainOfResponsibility):
             if not isinstance(instance, self._get_chain_interface()):
                 raise ValueError("Warning on chain of responsibility initialization: " + class_name +
                                  " is not of type " + self._get_chain_interface().__name__)
-        except:
+        except Exception as e:
+            print("Warning, caught exception while instantiating: " + str(e))
+            traceback.print_exc()
+
             instance = item
 
         return instance
