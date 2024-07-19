@@ -54,7 +54,7 @@ import platform
 
 NAME = 'aps_common_libraries'
 
-VERSION = '1.0.15'
+VERSION = '1.0.16'
 ISRELEASED = False
 
 DESCRIPTION = 'APS Common Libraries'

@@ -78,7 +78,7 @@ class ConfirmDialog(QMessageBox):
     def __init__(self, parent, message, title, width=None, height=None):
         super(ConfirmDialog, self).__init__(parent)
 
-        self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         self.setIcon(QMessageBox.Question)
         self.setText(message)
         self.setWindowTitle(title)
@@ -86,7 +86,7 @@ class ConfirmDialog(QMessageBox):
 
     @classmethod
     def confirmed(cls, parent=None, message="Confirm Action?", title="Confirm Action", width=None, height=None):
-        return ConfirmDialog(parent, message, title, width, height).exec_() == QMessageBox.Ok
+        return ConfirmDialog(parent, message, title, width, height).exec_() == QMessageBox.Yes
 
 class OptionDialog(QMessageBox):
     def __init__(self, parent, message, title, options, default, width=None, height=None):
