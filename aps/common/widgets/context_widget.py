@@ -78,8 +78,8 @@ class DefaultMainWindow(QMainWindow, AbstractContextWidget):
         new_geometry = QRect()
         new_geometry.setWidth(actual_geometry.width())
         new_geometry.setHeight(actual_geometry.height())
-        new_geometry.setTop(screen_geometry.height()*0.05)
-        new_geometry.setLeft(screen_geometry.width()*0.05)
+        new_geometry.setTop(int(screen_geometry.height()*0.05))
+        new_geometry.setLeft(int(screen_geometry.width()*0.05))
         self.setGeometry(new_geometry)
         self.setStyleSheet(stylesheet_string)
 
