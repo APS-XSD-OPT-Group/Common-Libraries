@@ -119,25 +119,34 @@ class ImageCollector():
                 self.__has_delay      = True
                 self.__detector_delay = detector_delay
 
+            print("Current Status\n", self.__to_dict())
+
             self.__detector_stop()
             self.__set_defaults(1)
+
+            print("New Status\n", self.__to_dict())
         else:
             print("ImageCollector initialized in Mocking Mode")
+
+    def __to_dict(self):
+        dictionary = OrderedDict()
+        dictionary["cam_image_mode"] = self.__PV_dict["cam_image_mode"].get()
+        dictionary["cam_exposure_time"] = self.__PV_dict["cam_exposure_time"].get()
+        dictionary["tiff_filename"] = self.__PV_dict["tiff_filename"].get()
+        dictionary["tiff_filepath"] = self.__PV_dict["tiff_filepath"].get()
+        dictionary["tiff_filenumber"] = self.__PV_dict["tiff_filenumber"].get()
+        dictionary["tiff_autosave"] = self.__PV_dict["tiff_autosave"].get()
+        dictionary["tiff_savefile"] = self.__PV_dict["tiff_savefile"].get()
+        dictionary["tiff_autoincrement"] = self.__PV_dict["tiff_autoincrement"].get()
+
+        return dictionary
 
     def __to_pickle_file(self):
         if not self.__mocking_mode:
             self.__detector_stop()
 
-            dictionary = OrderedDict()
-            dictionary["cam_image_mode"]     = self.__PV_dict["cam_image_mode"].get()
-            dictionary["cam_exposure_time"]  = self.__PV_dict["cam_exposure_time"].get()
-            dictionary["tiff_filepath"]      = self.__PV_dict["tiff_filepath"].get()
-            dictionary["tiff_filenumber"]    = self.__PV_dict["tiff_filenumber"].get()
-            dictionary["tiff_savefile"]      = self.__PV_dict["tiff_savefile"].get()
-            dictionary["tiff_autoincrement"] = self.__PV_dict["tiff_autoincrement"].get()
-
             file = open(IMAGE_COLLECTOR_STATUS_FILE, 'wb')
-            pickle.dump(dictionary, file)
+            pickle.dump(self.__to_dict(), file)
             file.close()
 
     def __from_pickle_file(self):
@@ -150,8 +159,10 @@ class ImageCollector():
 
             self.__PV_dict["cam_image_mode"].put(    dictionary["cam_image_mode"])
             self.__PV_dict["cam_exposure_time"].put( dictionary["cam_exposure_time"])
+            self.__PV_dict["tiff_filename"].put(     dictionary["tiff_filename"])
             self.__PV_dict["tiff_filepath"].put(     dictionary["tiff_filepath"])
             self.__PV_dict["tiff_filenumber"].put(   dictionary["tiff_filenumber"])
+            self.__PV_dict["tiff_autosave"].put(     dictionary["tiff_autosave"])
             self.__PV_dict["tiff_savefile"].put(     dictionary["tiff_savefile"])
             self.__PV_dict["tiff_autoincrement"].put(dictionary["tiff_autoincrement"])
 
@@ -172,8 +183,8 @@ class ImageCollector():
 
     def end_collection(self): # to be done at the end of the data collection
         if not self.__mocking_mode:
-            self.__PV_dict["tiff_autosave"].put("No")
-            self.__PV_dict["tiff_autoincrement"].put("Yes")
+            self.__PV_dict["tiff_autosave"].put(0)
+            self.__PV_dict["tiff_autoincrement"].put(1)
 
     def get_total_acquisition_time(self):
         return 3*WAIT_TIME + self.__exposure_time
@@ -201,11 +212,11 @@ class ImageCollector():
         self.__set_defaults(index)
 
     def __set_defaults(self, index):
-        self.__PV_dict["cam_image_mode"].put("Fixed")
+        self.__PV_dict["cam_image_mode"].put(0)
         self.__PV_dict["cam_exposure_time"].put(self.__exposure_time)
         self.__PV_dict["tiff_filepath"].put(self.__measurement_directory)
-        self.__PV_dict["tiff_autosave"].put("Yes")
-        self.__PV_dict["tiff_autoincrement"].put("No")
+        self.__PV_dict["tiff_autosave"].put(1)
+        self.__PV_dict["tiff_autoincrement"].put(0)
         self.__PV_dict["tiff_filename"].put(self.__file_name_prefix)
         if index > 0: self.__PV_dict["tiff_filenumber"].put(index)
 
