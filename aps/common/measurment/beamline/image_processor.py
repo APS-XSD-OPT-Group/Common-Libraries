@@ -279,7 +279,7 @@ class ProcessingThread(threading.Thread):
 
 def _get_image_data(data_collection_directory, file_name_prefix, image_index, index_digits=4, units="mm"):
     def load_image(file_path):
-        if os.path.exists(file_path): return numpy.array(numpy.array(Image.open(file_path))).astype(numpy.float32)
+        if os.path.exists(file_path): return numpy.array(numpy.array(Image.open(file_path))).astype(numpy.float32).T
         else:                         raise ValueError('Error: wrong data path. No data is loaded:' + file_path)
 
     image = load_image(os.path.join(data_collection_directory, (file_name_prefix + "_%0" + str(index_digits) + "i.tif") % image_index))
