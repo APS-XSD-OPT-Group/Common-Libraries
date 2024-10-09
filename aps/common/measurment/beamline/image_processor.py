@@ -50,7 +50,10 @@ import random
 import threading
 import time
 import pathlib
+from string import digits
+
 import numpy
+from PIL import Image
 
 from aps.common.initializer import IniMode, register_ini_instance, get_registered_ini_instance
 
@@ -166,15 +169,12 @@ class ImageProcessor():
                                                                              verbose=verbose)
         return self.__image_transfer_matrix, is_new_mask
 
-    def get_image_data(self, image_index, verbose=False):
+    def get_image_data(self, image_index, index_digits=4, units="mm"):
         return _get_image_data(self.__data_collection_directory,
                                self.__file_name_prefix,
-                               self.__simulated_mask_directory,
-                               self.__energy,
-                               self.__source_distance,
-                               self.__image_transfer_matrix,
                                image_index=image_index,
-                               verbose=verbose)
+                               index_digits=index_digits,
+                               units=units)
 
     def process_image(self, image_index, verbose=False):
         _process_image(self.__data_collection_directory,
@@ -277,82 +277,17 @@ class ProcessingThread(threading.Thread):
         print('Thread #' + str(self.__thread_id) + ' completed')
 
 
-def _get_image_data(data_collection_directory, file_name_prefix, mask_directory, energy, source_distance, image_transfer_matrix, image_index, verbose):
-    dark = None
-    flat = None
-    image_path       = os.path.join(data_collection_directory, file_name_prefix + "_%05i.tif" % image_index)
-    mask_directory   = os.path.join(data_collection_directory, "simulated_mask") if mask_directory is None else mask_directory
-    result_directory = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).split('.tif')[0])
+def _get_image_data(data_collection_directory, file_name_prefix, image_index, index_digits=4, units="mm"):
+    def load_image(file_path):
+        if os.path.exists(file_path): return numpy.array(numpy.array(Image.open(file_path))).astype(numpy.float32)
+        else:                         raise ValueError('Error: wrong data path. No data is loaded:' + file_path)
 
-    # pattern simulation parameters
-    pattern_path          = os.path.join(SCRIPT_DIRECTORY, 'mask', RAN_MASK)
-    propagated_pattern    = os.path.join(mask_directory, 'propagated_pattern.npz')
-    propagated_patternDet = os.path.join(mask_directory, 'propagated_patternDet.npz')
+    image = load_image(os.path.join(data_collection_directory, (file_name_prefix + "_%0" + str(index_digits) + "i.tif") % image_index))
 
-    crop                 = ' '.join([str(k) for k in CROP])
-    img_transfer_matrix  = ' '.join([str(k) for k in image_transfer_matrix])
-    find_transfer_matrix = False
-    p_x                  = PIXEL_SIZE
-    det_array            = str(IMAGE_SIZE_PIXEL_HxV[1]) + " " + str(IMAGE_SIZE_PIXEL_HxV[0])
-    pattern_size         = PATTERN_SIZE
-    pattern_thickness    = PATTERN_THICKNESS
-    pattern_T            = PATTERN_T
-    d_prop               = D_PROP
-    source_h             = SOURCE_H
-    source_v             = SOURCE_V
-    d_source_h           = source_distance[0]
-    d_source_v           = source_distance[1]
-    show_align_figure    = SHOW_ALIGN_FIGURE
+    factor = 1e6 if units == "um" else (1e3 if units == "mm" else (1e2 if units == "cm" else 1.0))
 
-    # reconstruction parameter initialization
-    mode            = MODE  # area or centralLine
-    lineWidth       = LINE_WIDTH
-    lineDirection   = LINE_DIRECTION
-    down_sampling   = DOWN_SAMPLING
-    method          = METHOD
-    use_gpu         = USE_GPU
-    use_wavelet     = USE_WAVELET
-    wavelet_cut     = WAVELET_CUT
-    pyramid_level   = PYRAMID_LEVEL
-    template_size   = TEMPLATE_SIZE
-    window_search   = WINDOW_SEARCH
-    crop_boundary   = CROP_BOUNDARY
-    n_cores         = N_CORES
-    n_group         = N_GROUP
-    verbose         = 0 if verbose else 1 # NO
-    simple_analysis = 1
-
-    # alignment or not, if '', no alignment, '--alignment' with alignment
-    params = ['--GPU ' if use_gpu else ''] + ['--use_wavelet ' if use_wavelet else ''] + [
-        '--show_alignFigure ' if show_align_figure else ''] + ['--find_transferMatrix ' if find_transfer_matrix else '']
-    params = ''.join([str(item) for item in params])
-
-    command = PYTHON + ' '  + os.path.join(SCRIPT_DIRECTORY, 'main.py') + \
-              ' --img {} --dark {} --flat {} --result_folder {} --pattern_path {} ' \
-              '--propagated_pattern {} --propagated_patternDet {} --crop {} --det_size {} ' \
-              '--img_transfer_matrix {} --p_x {} --energy {} --pattern_size {} --pattern_thickness {} ' \
-              '--pattern_T {} --d_source_v {} --d_source_h {} --source_v {} --source_h {} --d_prop {} ' \
-              '--mode {} --lineWidth {} --lineDirection {} --down_sampling {} --method {} --wavelet_lv_cut {} ' \
-              '--pyramid_level {} --template_size {} --window_searching {} ' \
-              '--nCores {} --nGroup {} --verbose {} --simple_analysis {} --crop_boundary {} {} '.format(image_path, dark, flat, result_directory,
-                                                                      pattern_path, propagated_pattern,
-                                                                      propagated_patternDet, crop, det_array,
-                                                                      img_transfer_matrix, p_x, energy,
-                                                                      pattern_size, pattern_thickness, pattern_T,
-                                                                      d_source_v, d_source_h,
-                                                                      source_v, source_h, d_prop, mode, lineWidth, lineDirection,
-                                                                      down_sampling, method,
-                                                                      wavelet_cut, pyramid_level, template_size,
-                                                                      window_search, n_cores,
-                                                                      n_group, verbose, simple_analysis, crop_boundary, params)
-    ret_val = os.system(command)
-
-    if ret_val != 0: raise Exception("Wavefront analysis failed")
-
-    with open(os.path.join(result_directory, "raw_image.npy"), 'rb') as f: image = numpy.load(f, allow_pickle=False).T
-
-    h_coord = numpy.linspace(-IMAGE_SIZE_PIXEL_HxV[0] / 2, IMAGE_SIZE_PIXEL_HxV[0] / 2, IMAGE_SIZE_PIXEL_HxV[0]) * PIXEL_SIZE * 1e3
-    v_coord = numpy.linspace(-IMAGE_SIZE_PIXEL_HxV[1] / 2, IMAGE_SIZE_PIXEL_HxV[1] / 2, IMAGE_SIZE_PIXEL_HxV[1]) * PIXEL_SIZE * 1e3
+    h_coord = numpy.linspace(-IMAGE_SIZE_PIXEL_HxV[0] / 2, IMAGE_SIZE_PIXEL_HxV[0] / 2, IMAGE_SIZE_PIXEL_HxV[0]) * PIXEL_SIZE * factor
+    v_coord = numpy.linspace(-IMAGE_SIZE_PIXEL_HxV[1] / 2, IMAGE_SIZE_PIXEL_HxV[1] / 2, IMAGE_SIZE_PIXEL_HxV[1]) * PIXEL_SIZE * factor
 
     return image, h_coord, v_coord
 
