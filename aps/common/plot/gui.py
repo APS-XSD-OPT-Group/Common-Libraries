@@ -500,13 +500,10 @@ def _enterButton(parent, control, placeholder=True):
     :return: a tuple with a button and a place holder (or `None`)
     :rtype: PyQt5.QtWidgets.QToolButton or tuple
     """
-    global _enter_icon
-    if not _enter_icon:
-        _enter_icon = QIcon(os.path.join(package_dirname("wavepy2.common.plot"), "icons/Dlg_enter.png"))
     button = QToolButton(parent)
     height = control.sizeHint().height()
     button.setFixedSize(height, height)
-    button.setIcon(_enter_icon)
+    button.setIcon(QIcon(os.path.join(package_dirname("aps.common.plot"), "icons/Dlg_enter.png")))
     if parent.layout() is not None:
         parent.layout().addWidget(button)
     if placeholder:
