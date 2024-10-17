@@ -61,29 +61,37 @@ ini_file = get_registered_ini_instance(APPLICATION_NAME)
 
 WAIT_TIME         = ini_file.get_float_from_ini(section="Execution", key="Wait-Time",     default=0.1)
 EXPOSURE_TIME     = ini_file.get_float_from_ini(section="Execution", key="Exposure-Time", default=0.3)
+PIXEL_FORMAT      = ini_file.get_float_from_ini(section="Execution", key="Pixel-Format",  default=0) # 0 - Mono8
+                                                                                                     # 5 - Mono16
+                                                                                                     # 8 - Mono12
 
-CAM_ACQUIRE        = ini_file.get_string_from_ini(section="Epics", key="Cam-Acquire",         default="dp_andor3_skylark:cam1:Acquire")
-CAM_EXPOSURE_TIME  = ini_file.get_string_from_ini(section="Epics", key="Cam-Exposure-Time",   default="dp_andor3_skylark:cam1:AcquireTime")
-CAM_IMAGE_MODE     = ini_file.get_string_from_ini(section="Epics", key="Cam-Image-Mode",      default="dp_andor3_skylark:cam1:ImageMode")
-TIFF_FILENAME      = ini_file.get_string_from_ini(section="Epics", key="Tiff-File-Name",      default="dp_andor3_skylark:TIFF1:FileName")
-TIFF_FILEPATH      = ini_file.get_string_from_ini(section="Epics", key="Tiff-File-Path",      default="dp_andor3_skylark:TIFF1:FilePath")
-TIFF_FILENUMBER    = ini_file.get_string_from_ini(section="Epics", key="Tiff-File-Number",    default="dp_andor3_skylark:TIFF1:FileNumber")
-TIFF_AUTOSAVE      = ini_file.get_string_from_ini(section="Epics", key="Tiff-Auto-Save",      default="dp_andor3_skylark:TIFF1:AutoSave")
-TIFF_SAVEFILE      = ini_file.get_string_from_ini(section="Epics", key="Tiff-Write-File",     default="dp_andor3_skylark:TIFF1:WriteFile")
-TIFF_AUTOINCREMENT = ini_file.get_string_from_ini(section="Epics", key="Tiff-Auto-Increment", default="dp_andor3_skylark:TIFF1:AutoIncrement")
+CAM_PIXEL_FORMAT      = ini_file.get_string_from_ini(section="Epics", key="Cam-Pixel-Format",      default="dp_andor3_skylark:cam1:PixelFormat_RBV")
+CAM_ACQUIRE           = ini_file.get_string_from_ini(section="Epics", key="Cam-Acquire",           default="dp_andor3_skylark:cam1:Acquire")
+CAM_EXPOSURE_TIME     = ini_file.get_string_from_ini(section="Epics", key="Cam-Exposure-Time",     default="dp_andor3_skylark:cam1:AcquireTime")
+CAM_IMAGE_MODE        = ini_file.get_string_from_ini(section="Epics", key="Cam-Image-Mode",        default="dp_andor3_skylark:cam1:ImageMode")
+TIFF_ENABLE_CALLBACKS = ini_file.get_string_from_ini(section="Epics", key="Tiff-Enable-Callbacks", default="dp_andor3_skylark:TIFF1:EnableCallbacks")
+TIFF_FILENAME         = ini_file.get_string_from_ini(section="Epics", key="Tiff-File-Name",        default="dp_andor3_skylark:TIFF1:FileName")
+TIFF_FILEPATH         = ini_file.get_string_from_ini(section="Epics", key="Tiff-File-Path",        default="dp_andor3_skylark:TIFF1:FilePath")
+TIFF_FILENUMBER       = ini_file.get_string_from_ini(section="Epics", key="Tiff-File-Number",      default="dp_andor3_skylark:TIFF1:FileNumber")
+TIFF_AUTOSAVE         = ini_file.get_string_from_ini(section="Epics", key="Tiff-Auto-Save",        default="dp_andor3_skylark:TIFF1:AutoSave")
+TIFF_SAVEFILE         = ini_file.get_string_from_ini(section="Epics", key="Tiff-Write-File",       default="dp_andor3_skylark:TIFF1:WriteFile")
+TIFF_AUTOINCREMENT    = ini_file.get_string_from_ini(section="Epics", key="Tiff-Auto-Increment",   default="dp_andor3_skylark:TIFF1:AutoIncrement")
 
 ini_file.set_value_at_ini(section="Execution",   key="Wait-Time",     value=WAIT_TIME)
 ini_file.set_value_at_ini(section="Execution",   key="Exposure-Time", value=EXPOSURE_TIME)
+ini_file.set_value_at_ini(section="Execution",   key="Pixel-Format",  value=PIXEL_FORMAT)
 
-ini_file.set_value_at_ini(section="Epics", key="Cam-Acquire",         value=CAM_ACQUIRE       )
-ini_file.set_value_at_ini(section="Epics", key="Cam-Exposure-Time",   value=CAM_EXPOSURE_TIME )
-ini_file.set_value_at_ini(section="Epics", key="Cam-Image-Mode",      value=CAM_IMAGE_MODE    )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Name",      value=TIFF_FILENAME     )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Path",      value=TIFF_FILEPATH     )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Number",    value=TIFF_FILENUMBER   )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-Auto-Save",      value=TIFF_AUTOSAVE     )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-Write-File",     value=TIFF_SAVEFILE     )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-Auto-Increment", value=TIFF_AUTOINCREMENT)
+ini_file.set_value_at_ini(section="Epics", key="Cam-Pixel-Format",      value=CAM_PIXEL_FORMAT       )
+ini_file.set_value_at_ini(section="Epics", key="Cam-Acquire",           value=CAM_ACQUIRE       )
+ini_file.set_value_at_ini(section="Epics", key="Cam-Exposure-Time",     value=CAM_EXPOSURE_TIME )
+ini_file.set_value_at_ini(section="Epics", key="Cam-Image-Mode",        value=CAM_IMAGE_MODE    )
+ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Name",        value=TIFF_FILENAME     )
+ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Path",        value=TIFF_FILEPATH     )
+ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Number",      value=TIFF_FILENUMBER   )
+ini_file.set_value_at_ini(section="Epics", key="Tiff-Auto-Save",        value=TIFF_AUTOSAVE     )
+ini_file.set_value_at_ini(section="Epics", key="Tiff-Write-File",       value=TIFF_SAVEFILE     )
+ini_file.set_value_at_ini(section="Epics", key="Tiff-Auto-Increment",   value=TIFF_AUTOINCREMENT)
+ini_file.set_value_at_ini(section="Epics", key="Tiff-Enable-Callbacks", value=TIFF_ENABLE_CALLBACKS)
 
 ini_file.push()
 
@@ -93,7 +101,12 @@ def get_default_file_name_prefix(exposure_time=EXPOSURE_TIME):
     return "sample_" + str(int(exposure_time * 1000)) + "ms"
 
 class ImageCollector():
-    def __init__(self, measurement_directory, exposure_time=EXPOSURE_TIME, file_name_prefix=None, detector_delay=None, mocking_mode=False):
+    def __init__(self,
+                 measurement_directory,
+                 exposure_time=EXPOSURE_TIME,
+                 file_name_prefix=None,
+                 detector_delay=None,
+                 mocking_mode=False):
         self.__exposure_time         = exposure_time
         self.__measurement_directory = measurement_directory
         self.__file_name_prefix      = get_default_file_name_prefix() if file_name_prefix is None else file_name_prefix
@@ -101,16 +114,18 @@ class ImageCollector():
 
         if not self.__mocking_mode:
             self.__PV_dict = {
-                "cam_acquire"        : PV(CAM_ACQUIRE),       # 0="Done", 1="Acquire"
-                "cam_exposure_time"  : PV(CAM_EXPOSURE_TIME),
-                "cam_image_mode"     : PV(CAM_IMAGE_MODE),    # "0=Fixed" or "1=Continuous"
-                "tiff_filename"      : PV(TIFF_FILENAME),
-                "tiff_filepath"      : PV(TIFF_FILEPATH),
-                "tiff_filenumber"    : PV(TIFF_FILENUMBER),
-                "tiff_autosave"      : PV(TIFF_AUTOSAVE),
-                "tiff_savefile"      : PV(TIFF_SAVEFILE),
-                "tiff_autoincrement" : PV(TIFF_AUTOINCREMENT)
-             }
+                "cam_acquire"          : PV(CAM_ACQUIRE),       # 0="Done", 1="Acquire"
+                "cam_exposure_time"    : PV(CAM_EXPOSURE_TIME),
+                "cam_image_mode"       : PV(CAM_IMAGE_MODE),    # "0=Fixed" or "1=Continuous"
+                "cam_pixel_format"     : PV(CAM_PIXEL_FORMAT),  # "0=Mono8, 5=Mono16, 8=Mono12"
+                "tiff_filename"        : PV(TIFF_FILENAME),
+                "tiff_filepath"        : PV(TIFF_FILEPATH),
+                "tiff_filenumber"      : PV(TIFF_FILENUMBER),
+                "tiff_autosave"        : PV(TIFF_AUTOSAVE),
+                "tiff_savefile"        : PV(TIFF_SAVEFILE),
+                "tiff_autoincrement"   : PV(TIFF_AUTOINCREMENT),
+                "tiff_enable_callbacks": PV(TIFF_ENABLE_CALLBACKS)
+            }
 
             if detector_delay is None:
                 self.__has_delay = False
@@ -129,14 +144,16 @@ class ImageCollector():
 
     def __to_dict(self):
         dictionary = OrderedDict()
-        dictionary["cam_image_mode"]     = self.__PV_dict["cam_image_mode"].get()
-        dictionary["cam_exposure_time"]  = self.__PV_dict["cam_exposure_time"].get()
-        dictionary["tiff_filename"]      = self.__PV_dict["tiff_filename"].get()
-        dictionary["tiff_filepath"]      = self.__PV_dict["tiff_filepath"].get()
-        dictionary["tiff_filenumber"]    = self.__PV_dict["tiff_filenumber"].get()
-        dictionary["tiff_autosave"]      = self.__PV_dict["tiff_autosave"].get()
-        dictionary["tiff_savefile"]      = self.__PV_dict["tiff_savefile"].get()
-        dictionary["tiff_autoincrement"] = self.__PV_dict["tiff_autoincrement"].get()
+        dictionary["cam_image_mode"]        = self.__PV_dict["cam_image_mode"].get()
+        dictionary["cam_exposure_time"]     = self.__PV_dict["cam_exposure_time"].get()
+        dictionary["cam_pixel_format"]      = self.__PV_dict["cam_pixel_format"].get()
+        dictionary["tiff_filename"]         = self.__PV_dict["tiff_filename"].get()
+        dictionary["tiff_filepath"]         = self.__PV_dict["tiff_filepath"].get()
+        dictionary["tiff_filenumber"]       = self.__PV_dict["tiff_filenumber"].get()
+        dictionary["tiff_autosave"]         = self.__PV_dict["tiff_autosave"].get()
+        dictionary["tiff_savefile"]         = self.__PV_dict["tiff_savefile"].get()
+        dictionary["tiff_autoincrement"]    = self.__PV_dict["tiff_autoincrement"].get()
+        dictionary["tiff_enable_callbacks"] = self.__PV_dict["tiff_enable_callbacks"].get()
 
         return dictionary
 
@@ -156,14 +173,16 @@ class ImageCollector():
             dictionary = pickle.load(file)
             file.close()
 
-            self.__PV_dict["cam_image_mode"].put(    dictionary["cam_image_mode"])
-            self.__PV_dict["cam_exposure_time"].put( dictionary["cam_exposure_time"])
-            self.__PV_dict["tiff_filename"].put(     dictionary["tiff_filename"])
-            self.__PV_dict["tiff_filepath"].put(     dictionary["tiff_filepath"])
-            self.__PV_dict["tiff_filenumber"].put(   dictionary["tiff_filenumber"])
-            self.__PV_dict["tiff_autosave"].put(     dictionary["tiff_autosave"])
-            self.__PV_dict["tiff_savefile"].put(     dictionary["tiff_savefile"])
-            self.__PV_dict["tiff_autoincrement"].put(dictionary["tiff_autoincrement"])
+            self.__PV_dict["cam_image_mode"].put(       dictionary["cam_image_mode"])
+            self.__PV_dict["cam_exposure_time"].put(    dictionary["cam_exposure_time"])
+            self.__PV_dict["cam_pixel_format"].put(     dictionary["cam_pixel_format"])
+            self.__PV_dict["tiff_filename"].put(        dictionary["tiff_filename"])
+            self.__PV_dict["tiff_filepath"].put(        dictionary["tiff_filepath"])
+            self.__PV_dict["tiff_filenumber"].put(      dictionary["tiff_filenumber"])
+            self.__PV_dict["tiff_autosave"].put(        dictionary["tiff_autosave"])
+            self.__PV_dict["tiff_savefile"].put(        dictionary["tiff_savefile"])
+            self.__PV_dict["tiff_autoincrement"].put(   dictionary["tiff_autoincrement"])
+            self.__PV_dict["tiff_enable_callbacks"].put(dictionary["tiff_enable_callbacks"])
 
     def save_status(self):
         self.__to_pickle_file()
@@ -212,7 +231,9 @@ class ImageCollector():
 
     def __set_defaults(self, index):
         self.__PV_dict["cam_image_mode"].put(0)
+        self.__PV_dict["cam_pixel_format"].put(PIXEL_FORMAT)
         self.__PV_dict["cam_exposure_time"].put(self.__exposure_time)
+        self.__PV_dict["tiff_enable_callbacks"].put(1)
         self.__PV_dict["tiff_filepath"].put(self.__measurement_directory)
         self.__PV_dict["tiff_autosave"].put(1)
         self.__PV_dict["tiff_autoincrement"].put(0)
