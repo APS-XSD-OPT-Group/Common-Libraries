@@ -230,9 +230,9 @@ def button(widget, master, label, callback=None, width=None, height=None,
     if label:
         button.setText(label)
     if width:
-        button.setFixedWidth(width)
+        button.setFixedWidth(int(width))
     if height:
-        button.setFixedHeight(height)
+        button.setFixedHeight(int(height))
     if toggleButton or value:
         button.setCheckable(True)
     if buttonType == QPushButton:
@@ -341,8 +341,8 @@ def tabWidget(widget, height=None, width=None):
     w.setStyleSheet('QTabBar::tab::selected {background-color: #a6a6a6;}')
 
     if not widget.layout() is None: widget.layout().addWidget(w)
-    if not height is None: w.setFixedHeight(height)
-    if not width is None: w.setFixedWidth(width)
+    if not height is None: w.setFixedHeight(int(height))
+    if not width is None: w.setFixedWidth(int(width))
 
     return w
 
@@ -377,8 +377,8 @@ def widgetBox(widget, box=None, orientation='vertical', margin=None, spacing=4, 
     __miscellanea(b, None, widget, **misc)
 
     b.layout().setAlignment(Qt.AlignTop)
-    if not height is None: b.setFixedHeight(height)
-    if not width is None:b.setFixedWidth(width)
+    if not height is None: b.setFixedHeight(int(height))
+    if not width is None:b.setFixedWidth(int(width))
 
     return b
 
@@ -393,8 +393,8 @@ def textArea(height=None, width=None, readOnly=True, noWrap=None):
     area.setReadOnly(readOnly)
     area.setStyleSheet("background-color: white;")
     if noWrap: area.setLineWrapMode(QTextEdit.NoWrap)
-    if not height is None: area.setFixedHeight(height)
-    if not width is None: area.setFixedWidth(width)
+    if not height is None: area.setFixedHeight(int(height))
+    if not width is None: area.setFixedWidth(int(width))
 
     return area
 

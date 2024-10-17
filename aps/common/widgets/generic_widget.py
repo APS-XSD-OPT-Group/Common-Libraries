@@ -104,8 +104,8 @@ class GenericWidget(QWidget, AbstractGenericWidget):
         try:    widget_height = kwargs["widget_height"]
         except: widget_height = canvas.get_width_height()[1]*1.1
 
-        self.setFixedWidth(widget_width)
-        self.setFixedHeight(widget_height)
+        self.setFixedWidth(int(widget_width))
+        self.setFixedHeight(int(widget_height))
 
         layout.setStretchFactor(canvas, 1)
         layout.addWidget(canvas)

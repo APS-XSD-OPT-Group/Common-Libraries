@@ -90,12 +90,12 @@ class LogStreamWidget(LogStream):
             self.__text_area.clear()
 
         def set_widget_size(self, width, height):
-            self.setFixedWidth(width)
-            self.setFixedHeight(height)
-            self.__text_area_box.setFixedWidth(width)
-            self.__text_area_box.setFixedHeight(height)
-            self.__text_area.setFixedHeight(height - 5)
-            self.__text_area.setFixedWidth(width - 5)
+            self.setFixedWidth(int(width))
+            self.setFixedHeight(int(height))
+            self.__text_area_box.setFixedWidth(int(width))
+            self.__text_area_box.setFixedHeight(int(height))
+            self.__text_area.setFixedHeight(int(height) - 5)
+            self.__text_area.setFixedWidth(int(width) - 5)
 
     def __init__(self, width=850, height=400, color='white'):
         self.__widget = LogStreamWidget.Widget(width, height, color)

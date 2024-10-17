@@ -190,12 +190,12 @@ class _AbstractActivePlotter(_AbstractPlotter):
         try:    container_widget_height = kwargs["container_widget_height"]
         except: container_widget_height = tab_widget_height + 55
 
-        tab_widget.setFixedWidth(tab_widget_width)
-        tab_widget.setFixedHeight(tab_widget_height)
-        main_box.setFixedHeight(main_box_height)
-        main_box.setFixedWidth(main_box_width)
-        container_widget.setFixedWidth(container_widget_width)
-        container_widget.setFixedHeight(container_widget_height)
+        tab_widget.setFixedWidth(int(tab_widget_width))
+        tab_widget.setFixedHeight(int(tab_widget_height))
+        main_box.setFixedHeight(int(main_box_height))
+        main_box.setFixedWidth(int(main_box_width))
+        container_widget.setFixedWidth(int(container_widget_width))
+        container_widget.setFixedHeight(int(container_widget_height))
 
         container_widget.update()
 
