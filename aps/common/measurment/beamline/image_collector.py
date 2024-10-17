@@ -61,7 +61,7 @@ ini_file = get_registered_ini_instance(APPLICATION_NAME)
 
 WAIT_TIME         = ini_file.get_float_from_ini(section="Execution", key="Wait-Time",     default=0.1)
 EXPOSURE_TIME     = ini_file.get_float_from_ini(section="Execution", key="Exposure-Time", default=0.3)
-PIXEL_FORMAT      = ini_file.get_float_from_ini(section="Execution", key="Pixel-Format",  default=0) # 0 - Mono8
+PIXEL_FORMAT      = ini_file.get_int_from_ini(  section="Execution", key="Pixel-Format",  default=0) # 0 - Mono8
                                                                                                      # 5 - Mono16
                                                                                                      # 8 - Mono12
 
