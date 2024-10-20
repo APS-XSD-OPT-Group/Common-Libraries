@@ -216,7 +216,7 @@ class ImageCollector():
         time.sleep(WAIT_TIME)
 
     def __detector_stop(self):
-        self.__PV_dict["cam_acquire"].put(0)
+        #self.__PV_dict["cam_acquire"].put(0)
         time.sleep(WAIT_TIME)
 
     def __detector_acquiring(self):
