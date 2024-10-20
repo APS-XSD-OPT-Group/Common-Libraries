@@ -59,11 +59,10 @@ register_ini_instance(IniMode.LOCAL_FILE,
                       verbose=False)
 ini_file = get_registered_ini_instance(APPLICATION_NAME)
 
-WAIT_TIME         = ini_file.get_float_from_ini(section="Execution", key="Wait-Time",     default=0.1)
-EXPOSURE_TIME     = ini_file.get_float_from_ini(section="Execution", key="Exposure-Time", default=0.3)
-PIXEL_FORMAT      = ini_file.get_int_from_ini(  section="Execution", key="Pixel-Format",  default=0) # 0 - Mono8
-                                                                                                     # 5 - Mono16
-                                                                                                     # 8 - Mono12
+SEND_STOP_COMMAND = ini_file.get_boolean_from_ini(section="Execution", key="Send-Stop-Command", default=False)
+WAIT_TIME         = ini_file.get_float_from_ini(  section="Execution", key="Wait-Time",         default=0.1)
+EXPOSURE_TIME     = ini_file.get_float_from_ini(  section="Execution", key="Exposure-Time",     default=0.3)
+PIXEL_FORMAT      = ini_file.get_int_from_ini(    section="Execution", key="Pixel-Format",      default=0)
 
 CAM_PIXEL_FORMAT      = ini_file.get_string_from_ini(section="Epics", key="Cam-Pixel-Format",      default="dp_andor3_skylark:cam1:PixelFormat")
 CAM_ACQUIRE           = ini_file.get_string_from_ini(section="Epics", key="Cam-Acquire",           default="dp_andor3_skylark:cam1:Acquire")
@@ -77,19 +76,20 @@ TIFF_AUTOSAVE         = ini_file.get_string_from_ini(section="Epics", key="Tiff-
 TIFF_SAVEFILE         = ini_file.get_string_from_ini(section="Epics", key="Tiff-Write-File",       default="dp_andor3_skylark:TIFF1:WriteFile")
 TIFF_AUTOINCREMENT    = ini_file.get_string_from_ini(section="Epics", key="Tiff-Auto-Increment",   default="dp_andor3_skylark:TIFF1:AutoIncrement")
 
-ini_file.set_value_at_ini(section="Execution",   key="Wait-Time",     value=WAIT_TIME)
-ini_file.set_value_at_ini(section="Execution",   key="Exposure-Time", value=EXPOSURE_TIME)
-ini_file.set_value_at_ini(section="Execution",   key="Pixel-Format",  value=PIXEL_FORMAT)
+ini_file.set_value_at_ini(section="Execution",   key="Send-Stop-Command", value=SEND_STOP_COMMAND)
+ini_file.set_value_at_ini(section="Execution",   key="Wait-Time",         value=WAIT_TIME)
+ini_file.set_value_at_ini(section="Execution",   key="Exposure-Time",     value=EXPOSURE_TIME)
+ini_file.set_value_at_ini(section="Execution",   key="Pixel-Format",      value=PIXEL_FORMAT)
 
-ini_file.set_value_at_ini(section="Epics", key="Cam-Pixel-Format",      value=CAM_PIXEL_FORMAT       )
-ini_file.set_value_at_ini(section="Epics", key="Cam-Acquire",           value=CAM_ACQUIRE       )
-ini_file.set_value_at_ini(section="Epics", key="Cam-Exposure-Time",     value=CAM_EXPOSURE_TIME )
-ini_file.set_value_at_ini(section="Epics", key="Cam-Image-Mode",        value=CAM_IMAGE_MODE    )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Name",        value=TIFF_FILENAME     )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Path",        value=TIFF_FILEPATH     )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Number",      value=TIFF_FILENUMBER   )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-Auto-Save",        value=TIFF_AUTOSAVE     )
-ini_file.set_value_at_ini(section="Epics", key="Tiff-Write-File",       value=TIFF_SAVEFILE     )
+ini_file.set_value_at_ini(section="Epics", key="Cam-Pixel-Format",      value=CAM_PIXEL_FORMAT)
+ini_file.set_value_at_ini(section="Epics", key="Cam-Acquire",           value=CAM_ACQUIRE)
+ini_file.set_value_at_ini(section="Epics", key="Cam-Exposure-Time",     value=CAM_EXPOSURE_TIME)
+ini_file.set_value_at_ini(section="Epics", key="Cam-Image-Mode",        value=CAM_IMAGE_MODE)
+ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Name",        value=TIFF_FILENAME)
+ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Path",        value=TIFF_FILEPATH)
+ini_file.set_value_at_ini(section="Epics", key="Tiff-File-Number",      value=TIFF_FILENUMBER)
+ini_file.set_value_at_ini(section="Epics", key="Tiff-Auto-Save",        value=TIFF_AUTOSAVE)
+ini_file.set_value_at_ini(section="Epics", key="Tiff-Write-File",       value=TIFF_SAVEFILE)
 ini_file.set_value_at_ini(section="Epics", key="Tiff-Auto-Increment",   value=TIFF_AUTOINCREMENT)
 ini_file.set_value_at_ini(section="Epics", key="Tiff-Enable-Callbacks", value=TIFF_ENABLE_CALLBACKS)
 
@@ -111,6 +111,7 @@ class ImageCollector():
         self.__measurement_directory = measurement_directory
         self.__file_name_prefix      = get_default_file_name_prefix() if file_name_prefix is None else file_name_prefix
         self.__mocking_mode          = mocking_mode
+        self.__send_stop_command     = SEND_STOP_COMMAND
 
         if not self.__mocking_mode:
             self.__PV_dict = {
@@ -133,12 +134,8 @@ class ImageCollector():
                 self.__has_delay      = True
                 self.__detector_delay = detector_delay
 
-            #print("Current Status\n", self.__to_dict())
-
             self.__detector_stop()
             self.__set_defaults(1)
-
-            #print("New Status\n", self.__to_dict())
         else:
             print("ImageCollector initialized in Mocking Mode")
 
@@ -216,7 +213,7 @@ class ImageCollector():
         time.sleep(WAIT_TIME)
 
     def __detector_stop(self):
-        #self.__PV_dict["cam_acquire"].put(0)
+        if self.__send_stop_command: self.__PV_dict["cam_acquire"].put(0)
         time.sleep(WAIT_TIME)
 
     def __detector_acquiring(self):
