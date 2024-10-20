@@ -65,7 +65,7 @@ PIXEL_FORMAT      = ini_file.get_int_from_ini(  section="Execution", key="Pixel-
                                                                                                      # 5 - Mono16
                                                                                                      # 8 - Mono12
 
-CAM_PIXEL_FORMAT      = ini_file.get_string_from_ini(section="Epics", key="Cam-Pixel-Format",      default="dp_andor3_skylark:cam1:PixelFormat_RBV")
+CAM_PIXEL_FORMAT      = ini_file.get_string_from_ini(section="Epics", key="Cam-Pixel-Format",      default="dp_andor3_skylark:cam1:PixelFormat")
 CAM_ACQUIRE           = ini_file.get_string_from_ini(section="Epics", key="Cam-Acquire",           default="dp_andor3_skylark:cam1:Acquire")
 CAM_EXPOSURE_TIME     = ini_file.get_string_from_ini(section="Epics", key="Cam-Exposure-Time",     default="dp_andor3_skylark:cam1:AcquireTime")
 CAM_IMAGE_MODE        = ini_file.get_string_from_ini(section="Epics", key="Cam-Image-Mode",        default="dp_andor3_skylark:cam1:ImageMode")
