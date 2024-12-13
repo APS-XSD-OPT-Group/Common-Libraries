@@ -46,6 +46,8 @@
 # ----------------------------------------------------------------------- #
 
 from aps.common.singleton import Singleton, synchronized_method
+import json
+from typing import Any, List, Optional, Type
 
 import os
 from configparser import ConfigParser
@@ -54,6 +56,8 @@ class IniMode:
     LOCAL_FILE = 0
     REMOTE_FILE = 1
     DATABASE = 2
+    LOCAL_JSON_FILE = 3
+    REMOTE_JSON_FILE = 4
     NONE = 99
 
 class IniFacade:
@@ -172,6 +176,87 @@ class __LocalIniFile(IniFacade):
     def push(self):
         with open(self.__ini_file_name, "w") as ini_file: self.__config_parser.write(ini_file)
 
+class __LocalJsonFile(IniFacade):
+    def __init__(self, **kwargs):
+        self.__json_file_name = kwargs["json_file_name"]
+
+        try: self.__verbose       = kwargs["verbose"]
+        except: self.__verbose = True
+
+        if not os.path.isfile(self.__json_file_name):
+            with open(self.__json_file_name, "w") as json_file: json_file.write('\n')
+            if self.__verbose: print("File " + self.__json_file_name + " doesn't exist: created empty json file.")
+
+        try:
+            with open(self.__json_file_name, 'r') as file: self.__data = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.__data = {}
+
+    def __get_nested_key(self, section, keys, default, raise_key_error=False):
+        try:
+            data = self.__data[section]
+            for key in keys[:-1]: data = data[key]
+            return data.get(keys[-1], default)
+        except KeyError:
+            if raise_key_error:
+                raise KeyError(f"Key path {section} {' -> '.join(keys)} not found.")
+            else:
+                self.__set_nested_key(section, keys, default)
+                return default
+
+    def __set_nested_key(self, section, keys, value):
+        try:
+            try:
+                data = self.__data[section]
+            except:
+                self.__data[section] = {}
+                data = self.__data[section]
+            for key in keys[:-1]:
+                if key in data and not isinstance(data[key], dict): raise ValueError(f"Incompatibile key path: {key} is not nested")
+                if key not in data: data[key] = {}
+                data = data[key]
+            data[keys[-1]] = value
+        except Exception as e:
+            raise KeyError(f"Failed to add or update key path {' -> '.join(keys)}: {e}")
+
+    def set_value_at_ini(self, section: str, key: str, value: Any):
+        self.__set_nested_key(section, key.split(','), value)
+
+    def set_list_at_ini(self, section: str, key: str, values_list: List[Any] = []):
+        self.__set_nested_key(section, key.split(','), values_list)
+
+    def get_string_from_ini(self, section: str, key: str, default: Optional[str] = None) -> Optional[str]:
+        return str(self.__get_nested_key(section, key.split(','), default))
+
+    def get_int_from_ini(self, section: str, key: str, default: Optional[int] = None) -> Optional[int]:
+        try: return int(self.__get_nested_key(section, key.split(','), default))
+        except (ValueError, TypeError): return default
+
+    def get_float_from_ini(self, section: str, key: str, default: Optional[float] = None) -> Optional[float]:
+        try: return float(self.__get_nested_key(section, key.split(','), default))
+        except (ValueError, TypeError): return default
+
+    def get_boolean_from_ini(self, section: str, key: str, default: bool = False) -> bool:
+        value = self.__get_nested_key(section, key, False if default is None else default)
+        if isinstance(value, str): return value.lower() in ('true', '1', 'yes')
+        return bool(value)
+
+    def get_list_from_ini(self, section: str, key: str, default: Optional[List[Any]] = None, type: Type = str) -> List[Any]:
+        value = self.__get_nested_key(section, key.split(','), default)
+        if not isinstance(value, list): return default or []
+        if type == bool: return [(item if type(item) == bool else (True if (type(item)==str and item.strip().lower() in ('true', '1', 'yes')) else False))  for item in value]
+        else:            return [type(item) for item in value]
+
+    def dump(self):
+        return "Dump of file: " + self.__json_file_name + "\n" + \
+               "%============================================================\n" + \
+               json.dumps(self.__data, indent=4) + \
+               "\n%============================================================\n"
+
+    def push(self):
+        with open(self.__json_file_name, 'w') as file: json.dump(self.__data, file, indent=4)
+
+
 from aps.common.registry import GenericRegistry
 
 @Singleton
@@ -197,10 +282,29 @@ class __IniRegistry(GenericRegistry):
 def register_ini_instance(ini_mode=IniMode.LOCAL_FILE, reset=False, application_name=None, **kwargs):
     if reset: __IniRegistry.Instance().reset(application_name)
     if ini_mode == IniMode.LOCAL_FILE: __IniRegistry.Instance().register_ini(__LocalIniFile(**kwargs), application_name)
+    if ini_mode == IniMode.LOCAL_JSON_FILE: __IniRegistry.Instance().register_ini(__LocalJsonFile(**kwargs), application_name)
     elif ini_mode == IniMode.NONE:     __IniRegistry.Instance().register_ini(__NullIni(), application_name)
 
 def get_registered_ini_instance(application_name=None) -> IniFacade:
     return __IniRegistry.Instance().get_ini_instance(application_name)
 
+if __name__=="__main__":
+    import tempfile
 
+    temp_dir = tempfile.gettempdir()
+    print(temp_dir)
+
+    register_ini_instance(IniMode.LOCAL_JSON_FILE, application_name="GIGIO", json_file_name=os.path.join(temp_dir, "test_ini.json"))
+
+    ini = get_registered_ini_instance("GIGIO")
+
+    values_list = ini.get_list_from_ini("Section1", "key1, key2, key3", type=int)
+
+    ini.set_value_at_ini("Section1", "key1, key2, key3", [x + 1 for x in values_list])
+
+    print(ini.dump())
+
+    ini.push()
+
+    print(ini.get_list_from_ini("Section1", "key1, key2, key3", type=int))
 
